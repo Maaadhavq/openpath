@@ -53,4 +53,4 @@ It writes `eval/results/<time>.json` and `.md` (a table for the slide) and copie
 
 ## Deploy (Render, free plan)
 
-`render.yaml` defines one web service: the app, `/teacher` and the API on one origin. Set `SARVAM_API_KEY`, `DEMO_PASSCODE` and `TTS_SPEAKER` in the Render dashboard; never in the repo. After each deploy: bump `CACHE` in `app/sw.js`, open `/api/health`, then open the app on the phone twice. Free servers sleep after 15 minutes: open `/teacher` early, and its polling keeps the server awake.
+`render.yaml` defines one web service: the app, `/teacher` and the API on one origin. Set `SARVAM_API_KEY`, `DEMO_PASSCODE` and `TTS_SPEAKER` in the Render dashboard; never in the repo. Pushing to GitHub does not deploy by itself: press "Manual Deploy" in the Render dashboard after each push. Before each deploy, bump `CACHE` in `app/sw.js`; afterwards, open `/api/health`, then open the app on the phone twice. Free servers sleep after 15 minutes: open `/teacher` early, and its polling keeps the server awake.

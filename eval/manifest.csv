@@ -1,0 +1,4 @@
+file,speaker_id,condition,question_id,reference_text,expected_option_id
+s01_home_01.wav,s01,quiet,home,நான் எங்க கடையில கணக்கு எழுதுவேன்,accounts
+s01_school_01.wav,s01,quiet,school,எனக்கு அறிவியல் ரொம்ப பிடிக்கும்,science
+s01_style_01.wav,s01,quiet,style,மத்தவங்களுக்கு உதவி செய்யப் பிடிக்கும்,help

@@ -75,6 +75,7 @@ def test_installable_and_offline(page, context, server, shot):
     c = page.evaluate("window.OPENPATH_CHECKS")
     assert c["passed"] == 47 and c["networkCallsInFlow"] == 0
     assert "Offline" in page.inner_text("#phStatus")
+    page.wait_for_function("window.OPENPATH_CHECKS.appKB > 0")       # app size = what the service worker stores
     kavya_to_plan(page)
     page.click("[data-act=go][data-s=support]")
     pud = page.locator("article[data-scheme=pudhumai]")

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: openpath
+    runtime: python
+    plan: free
+    region: singapore            # the closest Render region to Sarvam's servers in India
+    buildCommand: pip install -r server/requirements.txt
+    startCommand: uvicorn server.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: DEMO_PASSCODE
+        sync: false
+      - key: TTS_SPEAKER
+        sync: false
+      - key: FAKE_SARVAM
+        value: "0"
+      - key: STT_MODEL
+        value: saaras:v4
+      - key: STT_MODE
+        value: transcribe
+      - key: LLM_MODEL
+        value: sarvam-105b
+      - key: TTS_MODEL
+        value: bulbul:v4-flash

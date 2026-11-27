@@ -1,0 +1,210 @@
+{
+  "greeting": {
+    "ta": "வணக்கம்! மூன்று சிறு கேள்விகள். பேசலாம், அல்லது படத்தைத் தொடலாம்.",
+    "en": "Hello! Three short questions. Speak, or tap a picture."
+  },
+  "confirm": {
+    "ta": "சரியா? படத்தைத் தொட்டு உறுதி செய்.",
+    "en": "Is this right? Tap the picture to confirm."
+  },
+  "not_caught": {
+    "ta": "புரியவில்லை. அருகிலுள்ள படத்தைத் தொடு.",
+    "en": "I didn't catch that. Tap the closest picture."
+  },
+  "voice_offline": {
+    "ta": "குரலுக்கு இணையம் தேவை. படத்தைத் தொடு.",
+    "en": "Voice needs a signal. Tap a picture."
+  },
+  "heard_prefix": {
+    "ta": "நீ சொன்னது:",
+    "en": "You said:"
+  },
+  "plan_ready": {
+    "ta": "உன் நான்கு வாரத் திட்டம் தயார்.",
+    "en": "Your 4-week plan is ready."
+  },
+  "support_intro": {
+    "ta": "உனக்குக் கிடைக்கும் உதவி இதோ. இவை இந்த போனிலேயே சரிபார்க்கப்பட்டன.",
+    "en": "Here is the support you can get. It was checked on this phone."
+  },
+  "q_home": {
+    "ta": "வீட்டிலோ கடையிலோ நீ அடிக்கடி செய்யும் வேலை எது?",
+    "en": "What work do you often do at home or at the shop?"
+  },
+  "q_school": {
+    "ta": "பள்ளியில் உனக்கு எது பிடிக்கும்?",
+    "en": "What do you like at school?"
+  },
+  "q_style": {
+    "ta": "எப்படி வேலை செய்ய உனக்குப் பிடிக்கும்?",
+    "en": "How do you like to work?"
+  },
+  "opt_home_accounts": {
+    "ta": "கணக்கு எழுதுவது",
+    "en": "Writing the accounts"
+  },
+  "opt_home_repair": {
+    "ta": "பொருட்களைச் சரிசெய்வது",
+    "en": "Repairing things"
+  },
+  "opt_home_care": {
+    "ta": "தம்பி தங்கைகளைக் கவனிப்பது",
+    "en": "Looking after siblings"
+  },
+  "opt_home_farm": {
+    "ta": "வயல், தோட்ட வேலை",
+    "en": "Field and garden work"
+  },
+  "opt_home_craft": {
+    "ta": "தையல், கோலம், வரைதல்",
+    "en": "Tailoring, kolam, drawing"
+  },
+  "opt_school_maths": {
+    "ta": "கணிதம்",
+    "en": "Maths"
+  },
+  "opt_school_science": {
+    "ta": "அறிவியல்",
+    "en": "Science"
+  },
+  "opt_school_computer": {
+    "ta": "கணினி",
+    "en": "Computers"
+  },
+  "opt_school_language": {
+    "ta": "மொழி, பேச்சு",
+    "en": "Languages and speaking"
+  },
+  "opt_school_art": {
+    "ta": "ஓவியம், கைவேலை",
+    "en": "Drawing and handwork"
+  },
+  "opt_style_hands": {
+    "ta": "கைகளால் செய்வது",
+    "en": "With my hands"
+  },
+  "opt_style_help": {
+    "ta": "மக்களுக்கு உதவுவது",
+    "en": "Helping people"
+  },
+  "opt_style_numbers": {
+    "ta": "எண்கள், கணினியுடன்",
+    "en": "With numbers and computers"
+  },
+  "opt_style_outside": {
+    "ta": "வெளியே, இயற்கையுடன்",
+    "en": "Outdoors, with nature"
+  },
+  "path_nursing": {
+    "ta": "செவிலியர்",
+    "en": "Nurse"
+  },
+  "path_labtech": {
+    "ta": "ஆய்வக தொழில்நுட்பர்",
+    "en": "Lab technician"
+  },
+  "path_solar": {
+    "ta": "சூரிய மின் தொழில்நுட்பர்",
+    "en": "Solar technician"
+  },
+  "path_bike": {
+    "ta": "வாகன மெக்கானிக்",
+    "en": "Two-wheeler mechanic"
+  },
+  "path_accounts": {
+    "ta": "கணக்கு உதவியாளர்",
+    "en": "Accounts assistant"
+  },
+  "path_mobile": {
+    "ta": "மொபைல் பழுதுநீக்கும் தொழில்நுட்பர்",
+    "en": "Mobile repair technician"
+  },
+  "path_agri": {
+    "ta": "வேளாண் கள உதவியாளர்",
+    "en": "Agriculture field assistant"
+  },
+  "path_garment": {
+    "ta": "ஆடை வடிவமைப்பாளர்",
+    "en": "Garment designer"
+  },
+  "path_teacher": {
+    "ta": "ஆசிரியர்",
+    "en": "Teacher"
+  },
+  "path_civil": {
+    "ta": "சிவில் பொறியியல் டிப்ளமோ",
+    "en": "Civil engineering diploma"
+  },
+  "path_copa": {
+    "ta": "கணினி இயக்குநர்",
+    "en": "Computer operator"
+  },
+  "path_pharma": {
+    "ta": "மருந்தாளுநர்",
+    "en": "Pharmacist"
+  },
+  "path_engineering": {
+    "ta": "பொறியாளர் (B.E.)",
+    "en": "Engineer (B.E.)"
+  },
+  "path_graphic": {
+    "ta": "கிராஃபிக் வடிவமைப்பாளர்",
+    "en": "Graphic designer"
+  },
+  "story_nursing": {
+    "ta": "எங்கள் ஊரில் முதல் செவிலியர் நான். இரவுப் பணியிலும் மக்களுக்கு உதவுவது எனக்குப் பிடிக்கும்.",
+    "en": "I am the first nurse from our village. I like helping people, even on night shifts."
+  },
+  "story_labtech": {
+    "ta": "நான் பரமக்குடியில் +2 முடித்து DMLT படித்தேன். இப்போது அரசு மருத்துவமனை ஆய்வகத்தில் வேலை செய்கிறேன்.",
+    "en": "I finished Class 12 in Paramakudi and did a DMLT. Now I work in a government hospital lab."
+  },
+  "story_solar": {
+    "ta": "ITI முடித்ததும் சோலார் நிறுவனத்தில் பயிற்சி பெற்றேன். இப்போது கூரைகளில் சோலார் பேனல்கள் பொருத்துகிறேன்.",
+    "en": "After ITI I did an apprenticeship with a solar company. Now I install panels on rooftops."
+  },
+  "story_bike": {
+    "ta": "அப்பாவின் வண்டியைச் சரிசெய்துதான் தொடங்கினேன். இப்போது சொந்தமாக ஒரு பட்டறை வைத்திருக்கிறேன்.",
+    "en": "I started by fixing my father’s bike. Now I run my own workshop."
+  },
+  "story_accounts": {
+    "ta": "கடையில் கணக்கு எழுதியது தான் என் முதல் பயிற்சி. இப்போது ஒரு நிறுவனத்தில் GST கணக்குகளைப் பார்க்கிறேன்.",
+    "en": "Writing the shop’s accounts was my first training. Now I handle GST accounts for a company."
+  },
+  "story_mobile": {
+    "ta": "பள்ளியில் படிக்கும்போதே போன்களைத் திறந்து பார்ப்பேன். இப்போது ஒரு சர்வீஸ் சென்டரில் வேலை செய்கிறேன்.",
+    "en": "I used to open up phones while still in school. Now I work at a service centre."
+  },
+  "story_agri": {
+    "ta": "வேளாண் டிப்ளமோ முடித்து விவசாயிகளுக்கு மண் பரிசோதனை செய்ய உதவுகிறேன்.",
+    "en": "After my agriculture diploma, I help farmers test their soil."
+  },
+  "story_garment": {
+    "ta": "அம்மாவிடம் தையல் கற்றேன். டிப்ளமோ முடித்து திருப்பூரில் ஆடை வடிவமைக்கிறேன்.",
+    "en": "I learned tailoring from my mother. After the diploma, I design clothes in Tiruppur."
+  },
+  "story_teacher": {
+    "ta": "என் ஆசிரியரைப் பார்த்துத்தான் ஆசிரியர் ஆனேன். இப்போது அதே பள்ளியில் பாடம் நடத்துகிறேன்.",
+    "en": "My teacher inspired me. Now I teach at the same school."
+  },
+  "story_civil": {
+    "ta": "பாலிடெக்னிக் முடித்து சாலை கட்டுமானத் திட்டத்தில் தள மேற்பார்வையாளராக இருக்கிறேன்.",
+    "en": "After polytechnic, I am a site supervisor on a road project."
+  },
+  "story_copa": {
+    "ta": "ஒரு ஆண்டு COPA படித்தேன். இப்போது இ-சேவை மையத்தில் வேலை செய்கிறேன்.",
+    "en": "I did a one-year COPA course. Now I work at an e-Sevai centre."
+  },
+  "story_pharma": {
+    "ta": "D.Pharm முடித்து எங்கள் ஊரிலேயே மருந்தகத்தில் வேலை செய்கிறேன்.",
+    "en": "After D.Pharm, I work at a pharmacy in my own town."
+  },
+  "story_engineering": {
+    "ta": "குடும்பத்தில் முதல் பட்டதாரி நான். 7.5% ஒதுக்கீட்டில் பொறியியல் படித்தேன்.",
+    "en": "I am the first graduate in my family. I studied engineering through the 7.5% quota."
+  },
+  "story_graphic": {
+    "ta": "கோலம் போடுவது எனக்குப் பிடிக்கும். இப்போது கடைகளுக்கு விளம்பரங்கள் வடிவமைக்கிறேன்.",
+    "en": "I love drawing kolams. Now I design posters for shops."
+  }
+}

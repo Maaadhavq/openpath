@@ -102,6 +102,7 @@ export function measureAppSize(){
     var ours = keys.filter(function(k){ return /^op-v\d+$/.test(k); }).sort(function(a, b){ return +b.slice(4) - +a.slice(4); });
     if (!ours.length) return null;
     return caches.open(ours[0]).then(function(c){ return c.keys().then(function(reqs){
+      reqs = reqs.filter(function(q){ return new URL(q.url).pathname !== '/'; });   // '/' is the same file as /index.html
       return Promise.all(reqs.map(function(q){ return c.match(q).then(function(res){ return res ? res.blob().then(function(b){ return b.size; }) : 0; }); }));
     }); }).then(function(sizes){ return Math.round(sizes.reduce(function(a, b){ return a + b; }, 0) / 1024); });
   }).then(function(kb){

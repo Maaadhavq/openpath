@@ -55,3 +55,30 @@ def unlock_kavya_any(page):
     page.click("[data-act=who][data-id=kavya]")
     for pin in ("sun", "leaf", "star"):
         page.click(f"[data-act=pin][data-id={pin}]")
+
+
+def test_installable_and_offline(page, context, server, shot):
+    """The service worker installs; with the network off, a reload still works and the rules still run."""
+    open_app(page, server)
+    m = page.evaluate("fetch('/manifest.webmanifest').then(r => r.json())")
+    assert m["display"] == "standalone" and m["start_url"] == "/" and m["theme_color"] == "#1e6b52"
+    assert {i["sizes"] for i in m["icons"]} == {"192x192", "512x512"} and any(i.get("purpose") == "maskable" for i in m["icons"])
+    page.evaluate("navigator.serviceWorker.ready")
+    page.wait_for_function("navigator.serviceWorker.controller !== null")
+    cached = page.evaluate("caches.keys().then(k => Promise.all(k.map(n => caches.open(n).then(c => c.keys()).then(r => r.map(x => new URL(x.url).pathname))))).then(a => a.flat())")
+    for must in ("/index.html", "/js/engine.js", "/data/paths.json", "/icons/icon-192.png"):
+        assert must in cached
+
+    context.set_offline(True)
+    page.reload()
+    page.wait_for_function("window.OPENPATH && window.OPENPATH_CHECKS")
+    c = page.evaluate("window.OPENPATH_CHECKS")
+    assert c["passed"] == 47 and c["networkCallsInFlow"] == 0
+    assert "Offline" in page.inner_text("#phStatus")
+    kavya_to_plan(page)
+    page.click("[data-act=go][data-s=support]")
+    pud = page.locator("article[data-scheme=pudhumai]")
+    assert pud.get_attribute("data-status") == "later"
+    assert "Bank account linked to Aadhaar" in pud.inner_text()
+    shot(page, "laptop-offline-support")
+    context.set_offline(False)

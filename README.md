@@ -6,6 +6,8 @@ A voice-first career and scheme guide for rural Tamil Nadu students in Classes 9
 - **Voice:** the phone records a 16 kHz WAV and sends it to `/api/talk`. Saaras v4 turns it into text and Sarvam-105B matches it to one of the picture options. The student confirms every answer by tapping the picture. The language model never decides who is eligible.
 - **Teacher:** `/teacher` shows class 10-B live. The phone sends only progress and one blocker, never community, income, gender, documents or answers.
 
+**Live:** student app https://openpath-nx3v.onrender.com · teacher dashboard https://openpath-nx3v.onrender.com/teacher/ (free Render server: the first visit after 15 idle minutes takes about a minute).
+
 `CLAUDE.md` is the full build brief. `reference/openpath_prototype.html` is the Round 2 prototype the app was ported from.
 
 ## Run locally

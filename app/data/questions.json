@@ -1,0 +1,287 @@
+[
+  {
+    "id": "home",
+    "q": {
+      "ta": "வீட்டிலோ கடையிலோ நீ அடிக்கடி செய்யும் வேலை எது?",
+      "en": "What work do you often do at home or at the shop?"
+    },
+    "opts": [
+      {
+        "id": "accounts",
+        "icon": "ledger",
+        "label": {
+          "ta": "கணக்கு எழுதுவது",
+          "en": "Writing the accounts"
+        },
+        "tags": {
+          "numbers": 2,
+          "people": 1
+        },
+        "kw": [
+          "கணக்கு",
+          "பணம்",
+          "கடை",
+          "account",
+          "money",
+          "shop"
+        ]
+      },
+      {
+        "id": "repair",
+        "icon": "wrench",
+        "label": {
+          "ta": "பொருட்களைச் சரிசெய்வது",
+          "en": "Repairing things"
+        },
+        "tags": {
+          "mechanical": 2,
+          "electrical": 1
+        },
+        "kw": [
+          "சரி",
+          "ரிப்பேர்",
+          "மோட்டார்",
+          "repair",
+          "fix",
+          "motor",
+          "fan"
+        ]
+      },
+      {
+        "id": "care",
+        "icon": "care",
+        "label": {
+          "ta": "தம்பி தங்கைகளைக் கவனிப்பது",
+          "en": "Looking after siblings"
+        },
+        "tags": {
+          "care": 2,
+          "people": 1
+        },
+        "kw": [
+          "தம்பி",
+          "தங்கை",
+          "பாட்டி",
+          "கவனி",
+          "sister",
+          "brother",
+          "baby",
+          "care"
+        ]
+      },
+      {
+        "id": "farm",
+        "icon": "sprout",
+        "label": {
+          "ta": "வயல், தோட்ட வேலை",
+          "en": "Field and garden work"
+        },
+        "tags": {
+          "outdoors": 2,
+          "science": 1
+        },
+        "kw": [
+          "வயல்",
+          "தோட்ட",
+          "விவசாய",
+          "farm",
+          "field",
+          "garden"
+        ]
+      },
+      {
+        "id": "craft",
+        "icon": "needle",
+        "label": {
+          "ta": "தையல், கோலம், வரைதல்",
+          "en": "Tailoring, kolam, drawing"
+        },
+        "tags": {
+          "craft": 2
+        },
+        "kw": [
+          "தையல்",
+          "கோலம்",
+          "வரை",
+          "tailor",
+          "stitch",
+          "kolam",
+          "draw"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "school",
+    "q": {
+      "ta": "பள்ளியில் உனக்கு எது பிடிக்கும்?",
+      "en": "What do you like at school?"
+    },
+    "opts": [
+      {
+        "id": "maths",
+        "icon": "abacus",
+        "label": {
+          "ta": "கணிதம்",
+          "en": "Maths"
+        },
+        "tags": {
+          "numbers": 2
+        },
+        "kw": [
+          "கணிதம்",
+          "கணக்கு",
+          "math"
+        ]
+      },
+      {
+        "id": "science",
+        "icon": "flask",
+        "label": {
+          "ta": "அறிவியல்",
+          "en": "Science"
+        },
+        "tags": {
+          "science": 2
+        },
+        "kw": [
+          "அறிவியல்",
+          "science",
+          "biology"
+        ]
+      },
+      {
+        "id": "computer",
+        "icon": "screen",
+        "label": {
+          "ta": "கணினி",
+          "en": "Computers"
+        },
+        "tags": {
+          "computers": 2
+        },
+        "kw": [
+          "கணினி",
+          "கம்ப்யூட்டர்",
+          "computer"
+        ]
+      },
+      {
+        "id": "language",
+        "icon": "speech",
+        "label": {
+          "ta": "மொழி, பேச்சு",
+          "en": "Languages and speaking"
+        },
+        "tags": {
+          "people": 2
+        },
+        "kw": [
+          "மொழி",
+          "தமிழ்",
+          "பேச",
+          "language",
+          "english",
+          "speak"
+        ]
+      },
+      {
+        "id": "art",
+        "icon": "brush",
+        "label": {
+          "ta": "ஓவியம், கைவேலை",
+          "en": "Drawing and handwork"
+        },
+        "tags": {
+          "craft": 2
+        },
+        "kw": [
+          "ஓவியம்",
+          "வரைதல்",
+          "art",
+          "drawing"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "style",
+    "q": {
+      "ta": "எப்படி வேலை செய்ய உனக்குப் பிடிக்கும்?",
+      "en": "How do you like to work?"
+    },
+    "opts": [
+      {
+        "id": "hands",
+        "icon": "hammer",
+        "label": {
+          "ta": "கைகளால் செய்வது",
+          "en": "With my hands"
+        },
+        "tags": {
+          "mechanical": 1,
+          "craft": 1,
+          "electrical": 1
+        },
+        "kw": [
+          "கை",
+          "hand",
+          "make"
+        ]
+      },
+      {
+        "id": "help",
+        "icon": "care",
+        "label": {
+          "ta": "மக்களுக்கு உதவுவது",
+          "en": "Helping people"
+        },
+        "tags": {
+          "care": 2,
+          "people": 1
+        },
+        "kw": [
+          "உதவ",
+          "மக்கள்",
+          "help",
+          "people"
+        ]
+      },
+      {
+        "id": "numbers",
+        "icon": "abacus",
+        "label": {
+          "ta": "எண்கள், கணினியுடன்",
+          "en": "With numbers and computers"
+        },
+        "tags": {
+          "numbers": 1,
+          "computers": 1
+        },
+        "kw": [
+          "எண்",
+          "கணினி",
+          "number",
+          "computer"
+        ]
+      },
+      {
+        "id": "outside",
+        "icon": "sun",
+        "label": {
+          "ta": "வெளியே, இயற்கையுடன்",
+          "en": "Outdoors, with nature"
+        },
+        "tags": {
+          "outdoors": 2
+        },
+        "kw": [
+          "வெளி",
+          "இயற்கை",
+          "outside",
+          "nature"
+        ]
+      }
+    ]
+  }
+]

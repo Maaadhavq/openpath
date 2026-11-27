@@ -1,0 +1,1098 @@
+<title>OpenPath Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: the student's phone app on the left; teacher view, rule traces and live checks on the right. Stacks on narrow screens. */
+:root{
+  --bg:#f2f4f2; --surface:#ffffff; --ink:#1f2421; --muted:#56605b; --line:#c9d0cb; --tint:#eef2ef;
+  --green:#1e6b52; --on-green:#ffffff; --green-tint:#ddebe4; --ochre:#94580b; --ochre-tint:#f8ebd6; --no:#7f8682;
+  --font-ui:"Noto Sans Tamil","Nirmala UI","Latha","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --font-head:Cambria,Georgia,"Times New Roman",serif;
+  --font-mono:ui-monospace,"Cascadia Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#111513; --surface:#191f1c; --ink:#e7ece8; --muted:#a3ada7; --line:#36413b; --tint:#222a26;
+    --green:#66bd98; --on-green:#0f1a15; --green-tint:#1d3a2e; --ochre:#e3a556; --ochre-tint:#3a2b16; --no:#838b86; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --bg:#111513; --surface:#191f1c; --ink:#e7ece8; --muted:#a3ada7; --line:#36413b; --tint:#222a26;
+  --green:#66bd98; --on-green:#0f1a15; --green-tint:#1d3a2e; --ochre:#e3a556; --ochre-tint:#3a2b16; --no:#838b86; color-scheme:dark }
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.45}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--green)}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.topbar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px;margin-bottom:14px}
+.topbar h1{font-family:var(--font-head);font-size:24px;line-height:1.1;margin:0}
+.topbar p{margin:4px 0 0;color:var(--muted);font-size:13px;max-width:62ch}
+.topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:7px 14px;border-radius:10px;border:1px solid var(--green);background:var(--green);color:var(--on-green);font-weight:600;font-size:14px;text-align:center}
+.btn.ghost{background:transparent;color:var(--green)}
+.btn.quiet{background:transparent;color:var(--ink);border-color:var(--line);font-weight:500}
+.btn svg{width:16px;height:16px;flex:none}
+.card .btn{font-size:13px;padding:6px 11px;min-height:34px}
+.link{background:none;border:0;padding:4px 0;color:var(--green);text-decoration:underline;text-underline-offset:3px;font-size:13px}
+.stage{display:grid;grid-template-columns:390px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:920px){.stage{grid-template-columns:minmax(0,1fr)}}
+
+/* phone */
+.phone{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:30px;height:790px;display:flex;flex-direction:column;overflow:hidden;max-width:100%}
+@media (max-width:920px){.phone{height:auto;min-height:620px;border-radius:18px}}
+.ph-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 10px;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--font-head);font-weight:700;font-size:18px;color:var(--green)}
+.brand small{font-family:var(--font-ui);font-weight:500;font-size:12px;color:var(--muted);margin-left:4px}
+.ph-tools{display:flex;align-items:center;gap:6px}
+.net{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--tint);color:var(--muted);white-space:nowrap}
+.net.off{background:var(--ochre-tint);color:var(--ochre);font-weight:600}
+.iconbtn{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:12px;font-weight:600}
+.iconbtn svg{width:16px;height:16px}
+.ph-body{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+@media (max-width:920px){.ph-body{overflow:visible}}
+.ph-nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface)}
+.ph-nav button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 10px;border:0;background:none;color:var(--muted);font-size:11.5px;line-height:1.2}
+.ph-nav button svg{width:20px;height:20px}
+.ph-nav button[aria-current="page"]{color:var(--green);font-weight:700}
+.ph-nav .en{font-size:10px}
+
+/* bilingual text */
+.en{display:block;color:var(--muted);font-size:.84em;font-weight:400;line-height:1.3}
+.lang-en .ta{display:none}
+.lang-en .en{color:inherit;font-size:1em;font-weight:inherit}
+.btn .en{color:inherit;opacity:.85}
+.inline .en{display:inline;margin-left:4px}
+
+/* chat */
+.msg{max-width:90%;padding:10px 12px;border-radius:14px;background:var(--tint)}
+.msg.me{align-self:flex-end;background:var(--green-tint)}
+.qrow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{display:flex;gap:8px;align-items:center;text-align:left;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);min-height:58px;font-size:14px}
+.tile:hover{border-color:var(--green)}
+.tile svg{width:28px;height:28px;flex:none;color:var(--green)}
+.voice{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.mic{width:46px;height:46px;border-radius:50%;border:0;background:var(--green);color:var(--on-green);display:grid;place-items:center;flex:none}
+.mic svg{width:22px;height:22px}
+.mic.live{outline:4px solid var(--green-tint)}
+
+/* generic */
+.stack{display:flex;flex-direction:column;gap:12px}
+.center{align-items:center;text-align:center}
+.h{font-family:var(--font-head);font-size:20px;line-height:1.2;margin:0}
+.h3{font-size:16px;font-weight:700;margin:0;line-height:1.25}
+.note{margin:0;color:var(--muted);font-size:13px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.card.chosen{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between;align-items:flex-start;flex-wrap:nowrap}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--tint);color:var(--ink);white-space:nowrap}
+.chip .en{display:inline;font-size:1em;color:inherit;margin-left:4px;font-weight:600}
+.lang-en .chip .en{margin-left:0}
+.chip.ok{background:var(--green-tint);color:var(--green)}
+.chip.warn,.chip.wild{background:var(--ochre-tint);color:var(--ochre)}
+.chip.no{background:transparent;color:var(--no);border:1px solid var(--line)}
+.banner{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--green-tint);color:var(--ink);font-size:13px}
+.banner svg{width:18px;height:18px;flex:none;color:var(--green);margin-top:1px}
+.banner.ochre{background:var(--ochre-tint)}
+.banner.ochre svg{color:var(--ochre)}
+.meta{margin:0;font-size:13px;color:var(--muted)}
+.why{margin:0;font-size:13px}
+.story{margin:0;padding:10px 12px;border-left:3px solid var(--ochre);background:var(--tint);border-radius:0 8px 8px 0;font-size:14px}
+.story small{display:block;margin-top:6px;color:var(--muted);font-size:11.5px}
+.missing{margin:0;font-size:13px;color:var(--ochre);font-weight:600}
+.src{margin:0;font-size:11.5px;color:var(--muted)}
+.benefit{margin:0;font-size:14px}
+.reason{margin:0;font-size:13px}
+.group-h{margin:6px 0 0;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+details.group summary{cursor:pointer;font-size:13px;color:var(--muted);padding:4px 0}
+details.group[open] summary{margin-bottom:8px}
+
+/* details form */
+.field{display:flex;flex-direction:column;gap:6px}
+.field .label{font-size:13.5px;font-weight:600}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px;line-height:1.25;text-align:left}
+.seg button .en{font-size:11px}
+.seg button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.seg button[aria-pressed="true"] .en{color:var(--on-green);opacity:.85}
+
+/* plan */
+.week{display:flex;flex-direction:column;gap:6px}
+.week h4{margin:0;font-size:13px;color:var(--muted);font-weight:700}
+.task{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}
+.task input{width:18px;height:18px;margin-top:2px;accent-color:var(--green);flex:none}
+.task.done span{color:var(--muted);text-decoration:line-through}
+
+/* lock screen */
+.who{display:flex;flex-direction:column;gap:8px;width:100%}
+.who button{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--green-tint);color:var(--green);font-weight:700;flex:none}
+.avatar.big{width:56px;height:56px;font-size:22px}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:300px}
+.pin{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.pin svg{width:42px;height:42px}
+.pin span{font-size:11px;color:var(--muted)}
+.dots{display:flex;gap:10px;justify-content:center}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--green)}
+.dot.on{background:var(--green)}
+.warn{color:var(--ochre);font-weight:600;margin:0;font-size:13px}
+.hint{margin:0;font-size:12px;color:var(--muted)}
+
+/* sheet */
+.sheet-bg{position:absolute;inset:0;background:rgba(15,20,18,.45);display:flex;align-items:flex-end;z-index:5}
+.sheet{width:100%;max-height:85%;overflow:auto;background:var(--surface);border-radius:18px 18px 0 0;padding:16px;display:flex;flex-direction:column;gap:10px}
+.doc{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.doc b{font-weight:600}
+.have{color:var(--green);font-weight:700;white-space:nowrap}
+.need{color:var(--ochre);font-weight:700;white-space:nowrap}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;min-width:0}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:6px 10px 0;overflow-x:auto}
+.tabs button{padding:10px 12px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);font-size:14px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--green);font-weight:700}
+.pbody{padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.pbody h2{font-family:var(--font-head);font-size:20px;margin:0}
+.pbody p{margin:0}
+.figs{display:flex;flex-wrap:wrap;gap:8px 20px}
+.fig{display:flex;flex-direction:column}
+.fig b{font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.fig span{font-size:12px;color:var(--muted)}
+.fig.warn b{color:var(--ochre)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--tint);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.live td{background:var(--green-tint)}
+td.blk{color:var(--ochre);font-weight:600}
+.livetag{font-size:11px;font-weight:700;color:var(--green);margin-left:6px}
+pre{margin:0;font-family:var(--font-mono);font-size:12px;line-height:1.5;background:var(--tint);padding:10px 12px;border-radius:10px;overflow-x:auto}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.never{font-size:13px;color:var(--muted)}
+.trace{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.trace li{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.mark{display:inline-block;min-width:50px;text-align:center;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--tint);color:var(--ink);flex:none}
+.mark.yes{background:var(--green-tint);color:var(--green)}
+.mark.no{color:var(--no);border:1px solid var(--line);background:transparent}
+.mark.ask,.mark.likely,.mark.later,.mark.if{background:var(--ochre-tint);color:var(--ochre)}
+code{font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
+details.scheme{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+details.scheme summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;font-weight:600}
+details.scheme summary .chip{font-weight:600}
+.checks{display:flex;flex-direction:column;gap:10px}
+.check{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:baseline;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.check .big{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--green);white-space:nowrap}
+.check .big.bad{color:var(--ochre)}
+.check p{font-size:13.5px}
+.check small{grid-column:2;color:var(--muted);font-size:12px}
+.cases{max-height:280px;overflow:auto}
+.cases td,.cases th{font-size:12px;padding:5px 8px}
+.pass{color:var(--green);font-weight:700}
+.fail{color:var(--ochre);font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:13px;max-width:min(92vw,440px);z-index:30;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+@media (prefers-reduced-motion: no-preference){ .toast{animation:rise .18s ease-out} @keyframes rise{from{transform:translate(-50%,8px);opacity:0}to{transform:translate(-50%,0);opacity:1}} }
+
+/* plain status text instead of pills and badges */
+.chip{display:inline;padding:0;border:0;border-radius:0;background:none!important;font-size:13px;font-weight:700;color:var(--ink)}
+.chip.ok{color:var(--green)} .chip.warn,.chip.wild{color:var(--ochre)} .chip.no{color:var(--no);border:0}
+.net{background:none;padding:0;border-radius:0;font-size:12px}
+.net.off{background:none}
+.group-h{text-transform:none;letter-spacing:normal;font-size:14px;color:var(--ink)}
+.story{border-left:0;border-radius:8px;background:var(--tint)}
+.mark{background:none!important;border:0!important;padding:0;min-width:56px;text-align:left;font-size:12px}
+.livetag{font-weight:600;color:var(--green)}
+.phone{border-radius:20px}
+.card.chosen{box-shadow:none;border-color:var(--green);border-width:2px}
+
+/* v3: flat surfaces, fewer borders, plainer type */
+.card{border:0;background:var(--tint);border-radius:10px;padding:14px}
+.card.chosen{border:0;background:var(--green-tint);outline:2px solid var(--green);outline-offset:0}
+.tile{border:0;background:var(--tint);border-radius:10px}
+.tile:hover{background:var(--green-tint)}
+.who button{border:0;background:var(--tint);border-radius:10px}
+.pin{border:0;background:var(--tint);border-radius:10px}
+.seg button{border:0;background:var(--tint);border-radius:6px}
+.task{border:0;background:var(--tint);border-radius:8px}
+.banner{border-radius:8px}
+.banner svg{display:none}
+.msg{border-radius:10px}
+.check{border:0;background:var(--tint);border-radius:8px}
+details.scheme{border:0;background:var(--tint);border-radius:8px}
+.tbl-wrap{border:0}
+.panel{border:0;border-radius:12px}
+.phone{border:1px solid var(--line);border-radius:16px}
+.ph-top{border-bottom:0;background:var(--surface)}
+.ph-nav{border-top:1px solid var(--tint)}
+.btn{border-radius:8px}
+.iconbtn{border:0;background:var(--tint)}
+.h,.pbody h2,.topbar h1{font-family:var(--font-ui);font-weight:700;letter-spacing:normal}
+.brand{font-family:var(--font-ui)}
+.topbar p{display:none}
+.mic{width:42px;height:42px}
+</style>
+
+<div class="wrap" id="root">
+  <header class="topbar">
+    <div>
+      <h1>OpenPath prototype</h1>
+      <p>Team 5fire, VIT Chennai. Everything below runs inside this page: the scheme rules, the paths and the checks. Go offline after it loads and it keeps working. Student data is sample data.</p>
+    </div>
+    <div class="actions">
+      <button class="btn quiet" id="reset" data-act="reset">Reset demo</button>
+    </div>
+  </header>
+  <div class="stage">
+    <section aria-label="Student app">
+      <div class="phone" id="phone">
+        <div class="ph-top" id="phTop"></div>
+        <div class="ph-body" id="phBody"></div>
+        <nav class="ph-nav" id="phNav" aria-label="App sections"></nav>
+        <div id="sheet"></div>
+      </div>
+    </section>
+    <section class="panel" aria-label="Teacher view and checks">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="pbody" id="pbody"></div>
+    </section>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------------- network counter (proves the flow makes no calls) ---------------- */
+var NET = { calls: 0 };
+if (window.fetch) { var _f = window.fetch; window.fetch = function(){ NET.calls++; return _f.apply(this, arguments); }; }
+if (window.XMLHttpRequest) { var _o = XMLHttpRequest.prototype.open; XMLHttpRequest.prototype.open = function(){ NET.calls++; return _o.apply(this, arguments); }; }
+
+var CHECKED = '22 Nov 2026';
+function L(ta, en){ return { ta: ta, en: en }; }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function bi(x){ if (typeof x === 'string') return esc(x); return '<span class="ta">' + esc(x.ta) + '</span><span class="en">' + esc(x.en) + '</span>'; }
+function joinL(list){ return L(list.map(function(x){ return x.ta; }).join(', '), list.map(function(x){ return x.en; }).join(', ')); }
+function catL(a, b){ return L(a.ta + b.ta, a.en + b.en); }
+
+/* ---------------- icons ---------------- */
+var ICON = {
+  ledger:'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  wrench:'<path d="M14.5 4.5a4 4 0 0 0-5 5L4 15l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+  care:'<circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="8.5" r="2"/><path d="M3.5 19c.5-4 2.5-6 4.5-6s4 2 4.5 6M12.5 19c.4-3 1.8-4.5 3.5-4.5s3.1 1.5 3.5 4.5"/>',
+  sprout:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6zM12 14c0-3-2.5-5-6-5 0 3 2.5 5 6 5z"/>',
+  needle:'<path d="M5 19 18 6"/><circle cx="18.5" cy="5.5" r="1.5"/><path d="M5 19c3 1 6-1 7-4s4-4 7-3"/>',
+  abacus:'<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9h16M4 15h16"/><circle cx="8" cy="9" r="1.3"/><circle cx="11" cy="9" r="1.3"/><circle cx="14" cy="15" r="1.3"/><circle cx="17" cy="15" r="1.3"/>',
+  flask:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 15h9"/>',
+  screen:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/>',
+  speech:'<path d="M4 5h16v10H9l-4 4v-4H4z"/>',
+  brush:'<path d="M14 4l6 6-8 8-3-3z"/><path d="M9 15c-3 0-4 2-4 5 3 0 5-1 5-4"/>',
+  hammer:'<path d="M14 6l4 4M5 19l9-9"/><path d="M12 4l3-1 6 6-1 3-3-3-2 2-3-3z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
+  speaker:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  route:'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/>',
+  calendar:'<rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  shield:'<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  play:'<path d="M8 5l11 7-11 7z"/>',
+  wifi:'<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/>'
+};
+function ic(name){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[name] + '</svg>'; }
+
+var PIN_SVG = {
+  sun:'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="9" fill="var(--ochre)"/><path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M10.6 37.4l4.2-4.2M33.2 14.8l4.2-4.2" stroke="var(--ochre)" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+  star:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6l5.3 11.6 12.7 1.3-9.5 8.6 2.7 12.5L24 33.6 12.8 40l2.7-12.5L6 18.9l12.7-1.3z" fill="var(--green)"/></svg>',
+  leaf:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 38C10 20 22 9 40 8c0 18-11 30-30 30z" fill="var(--green)"/><path d="M12 36 32 16" stroke="var(--surface)" stroke-width="2.5" fill="none"/></svg>',
+  fish:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24c6-9 18-12 28-4l8-6v20l-8-6C24 36 12 33 6 24z" fill="var(--ink)"/><circle cx="16" cy="22" r="2" fill="var(--surface)"/></svg>',
+  moon:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M30 6a18 18 0 1 0 12 30A15 15 0 0 1 30 6z" fill="var(--muted)"/></svg>',
+  flower:'<svg viewBox="0 0 48 48" aria-hidden="true"><g fill="var(--ochre)"><circle cx="24" cy="13" r="7"/><circle cx="35" cy="22" r="7"/><circle cx="31" cy="35" r="7"/><circle cx="17" cy="35" r="7"/><circle cx="13" cy="22" r="7"/></g><circle cx="24" cy="26" r="5" fill="var(--green)"/></svg>'
+};
+var PIN_NAME = { sun:L('சூரியன்','sun'), star:L('நட்சத்திரம்','star'), leaf:L('இலை','leaf'), fish:L('மீன்','fish'), moon:L('நிலா','moon'), flower:L('பூ','flower') };
+var PIN_CODE = { kavya:['sun','leaf','star'], anbu:['fish','moon','flower'] };
+
+/* ---------------- skills and the three Discover questions ---------------- */
+var SKILL = {
+  numbers:L('எண்கள், கணக்கு','Numbers and accounts'), mechanical:L('இயந்திரம், பழுது நீக்குதல்','Machines and repair'),
+  electrical:L('மின்சார வேலை','Electrical work'), care:L('பிறரைக் கவனித்தல்','Caring for people'),
+  people:L('மக்களுடன் பேசுதல்','Talking with people'), outdoors:L('வயல், இயற்கை','Farms and outdoors'),
+  craft:L('கைவேலை, வடிவமைப்பு','Craft and design'), science:L('அறிவியல்','Science'), computers:L('கணினி','Computers')
+};
+var QUESTIONS = [
+  { id:'home', q:L('வீட்டிலோ கடையிலோ நீ அடிக்கடி செய்யும் வேலை எது?','What work do you often do at home or at the shop?'), opts:[
+    { id:'accounts', icon:'ledger', label:L('கணக்கு எழுதுவது','Writing the accounts'), tags:{numbers:2, people:1}, kw:['கணக்கு','பணம்','கடை','account','money','shop'] },
+    { id:'repair', icon:'wrench', label:L('பொருட்களைச் சரிசெய்வது','Repairing things'), tags:{mechanical:2, electrical:1}, kw:['சரி','ரிப்பேர்','மோட்டார்','repair','fix','motor','fan'] },
+    { id:'care', icon:'care', label:L('தம்பி தங்கைகளைக் கவனிப்பது','Looking after siblings'), tags:{care:2, people:1}, kw:['தம்பி','தங்கை','பாட்டி','கவனி','sister','brother','baby','care'] },
+    { id:'farm', icon:'sprout', label:L('வயல், தோட்ட வேலை','Field and garden work'), tags:{outdoors:2, science:1}, kw:['வயல்','தோட்ட','விவசாய','farm','field','garden'] },
+    { id:'craft', icon:'needle', label:L('தையல், கோலம், வரைதல்','Tailoring, kolam, drawing'), tags:{craft:2}, kw:['தையல்','கோலம்','வரை','tailor','stitch','kolam','draw'] }
+  ]},
+  { id:'school', q:L('பள்ளியில் உனக்கு எது பிடிக்கும்?','What do you like at school?'), opts:[
+    { id:'maths', icon:'abacus', label:L('கணிதம்','Maths'), tags:{numbers:2}, kw:['கணிதம்','கணக்கு','math'] },
+    { id:'science', icon:'flask', label:L('அறிவியல்','Science'), tags:{science:2}, kw:['அறிவியல்','science','biology'] },
+    { id:'computer', icon:'screen', label:L('கணினி','Computers'), tags:{computers:2}, kw:['கணினி','கம்ப்யூட்டர்','computer'] },
+    { id:'language', icon:'speech', label:L('மொழி, பேச்சு','Languages and speaking'), tags:{people:2}, kw:['மொழி','தமிழ்','பேச','language','english','speak'] },
+    { id:'art', icon:'brush', label:L('ஓவியம், கைவேலை','Drawing and handwork'), tags:{craft:2}, kw:['ஓவியம்','வரைதல்','art','drawing'] }
+  ]},
+  { id:'style', q:L('எப்படி வேலை செய்ய உனக்குப் பிடிக்கும்?','How do you like to work?'), opts:[
+    { id:'hands', icon:'hammer', label:L('கைகளால் செய்வது','With my hands'), tags:{mechanical:1, craft:1, electrical:1}, kw:['கை','hand','make'] },
+    { id:'help', icon:'care', label:L('மக்களுக்கு உதவுவது','Helping people'), tags:{care:2, people:1}, kw:['உதவ','மக்கள்','help','people'] },
+    { id:'numbers', icon:'abacus', label:L('எண்கள், கணினியுடன்','With numbers and computers'), tags:{numbers:1, computers:1}, kw:['எண்','கணினி','number','computer'] },
+    { id:'outside', icon:'sun', label:L('வெளியே, இயற்கையுடன்','Outdoors, with nature'), tags:{outdoors:2}, kw:['வெளி','இயற்கை','outside','nature'] }
+  ]}
+];
+
+/* ---------------- career paths (gender is never an input) ---------------- */
+// kind: iti | diploma | degree. tech: AICTE technical course. prof: professional degree (7.5% quota courses). usual: one of the five careers most students already name.
+var PATHS = [
+  { id:'nursing', name:L('செவிலியர்','Nurse'), route:L('செவிலியர் டிப்ளமோ (DGNM) · 3 ஆண்டுகள் · +2-க்குப் பின்','Nursing diploma (DGNM) · 3 years · after Class 12'), after:12, kind:'diploma', tech:false, prof:false, usual:true,
+    tags:{care:3, science:2, people:1}, subject:L('அறிவியல்','science'), group:L('உயிரியல்','Biology'),
+    visit:L('ஆசிரியருடன் அருகிலுள்ள ஆரம்ப சுகாதார நிலையத்துக்குச் செல்','Visit the nearest Primary Health Centre with your teacher'),
+    story:L('எங்கள் ஊரில் முதல் செவிலியர் நான். இரவுப் பணியிலும் மக்களுக்கு உதவுவது எனக்குப் பிடிக்கும்.','I am the first nurse from our village. I like helping people, even on night shifts.') },
+  { id:'labtech', name:L('ஆய்வக தொழில்நுட்பர்','Lab technician'), route:L('DMLT டிப்ளமோ · 2 ஆண்டுகள் · +2-க்குப் பின்','DMLT diploma · 2 years · after Class 12'), after:12, kind:'diploma', tech:false, prof:false, usual:false,
+    tags:{science:3, care:1, numbers:1}, subject:L('அறிவியல்','science'), group:L('உயிரியல்','Biology'),
+    visit:L('ஆசிரியருடன் அரசு மருத்துவமனை ஆய்வகத்தைப் பார்வையிடு','Visit a government hospital lab with your teacher'),
+    story:L('நான் பரமக்குடியில் +2 முடித்து DMLT படித்தேன். இப்போது அரசு மருத்துவமனை ஆய்வகத்தில் வேலை செய்கிறேன்.','I finished Class 12 in Paramakudi and did a DMLT. Now I work in a government hospital lab.') },
+  { id:'solar', name:L('சூரிய மின் தொழில்நுட்பர்','Solar technician'), route:L('ITI எலக்ட்ரீஷியன் · 2 ஆண்டுகள் · 10-க்குப் பின்','ITI Electrician · 2 years · after Class 10'), after:10, kind:'iti', tech:false, prof:false, usual:false,
+    tags:{electrical:3, outdoors:1, mechanical:1}, subject:L('அறிவியல்','science'), group:null,
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்','Visit the nearest Government ITI with your teacher'),
+    story:L('ITI முடித்ததும் சோலார் நிறுவனத்தில் பயிற்சி பெற்றேன். இப்போது கூரைகளில் சோலார் பேனல்கள் பொருத்துகிறேன்.','After ITI I did an apprenticeship with a solar company. Now I install panels on rooftops.') },
+  { id:'bike', name:L('வாகன மெக்கானிக்','Two-wheeler mechanic'), route:L('ITI மோட்டார் வாகன மெக்கானிக் · 2 ஆண்டுகள் · 10-க்குப் பின்','ITI Mechanic Motor Vehicle · 2 years · after Class 10'), after:10, kind:'iti', tech:false, prof:false, usual:false,
+    tags:{mechanical:3, electrical:1}, subject:L('அறிவியல்','science'), group:null,
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்','Visit the nearest Government ITI with your teacher'),
+    story:L('அப்பாவின் வண்டியைச் சரிசெய்துதான் தொடங்கினேன். இப்போது சொந்தமாக ஒரு பட்டறை வைத்திருக்கிறேன்.','I started by fixing my father’s bike. Now I run my own workshop.') },
+  { id:'accounts', name:L('கணக்கு உதவியாளர்','Accounts assistant'), route:L('B.Com · 3 ஆண்டுகள் · +2-க்குப் பின்','B.Com · 3 years · after Class 12'), after:12, kind:'degree', tech:false, prof:false, usual:false,
+    tags:{numbers:3, computers:1, people:1}, subject:L('கணிதம்','maths'), group:L('வணிகவியல்','Commerce'),
+    visit:L('ஒரு ஆடிட்டர் அலுவலகம் அல்லது வங்கிக் கிளைக்குச் சென்று பார்','Visit an auditor’s office or a bank branch'),
+    story:L('கடையில் கணக்கு எழுதியது தான் என் முதல் பயிற்சி. இப்போது ஒரு நிறுவனத்தில் GST கணக்குகளைப் பார்க்கிறேன்.','Writing the shop’s accounts was my first training. Now I handle GST accounts for a company.') },
+  { id:'mobile', name:L('மொபைல் பழுதுநீக்கும் தொழில்நுட்பர்','Mobile repair technician'), route:L('ITI எலக்ட்ரானிக்ஸ் மெக்கானிக் · 2 ஆண்டுகள் · 10-க்குப் பின்','ITI Electronics Mechanic · 2 years · after Class 10'), after:10, kind:'iti', tech:false, prof:false, usual:false,
+    tags:{electrical:2, mechanical:1, computers:1}, subject:L('அறிவியல்','science'), group:null,
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்','Visit the nearest Government ITI with your teacher'),
+    story:L('பள்ளியில் படிக்கும்போதே போன்களைத் திறந்து பார்ப்பேன். இப்போது ஒரு சர்வீஸ் சென்டரில் வேலை செய்கிறேன்.','I used to open up phones while still in school. Now I work at a service centre.') },
+  { id:'agri', name:L('வேளாண் கள உதவியாளர்','Agriculture field assistant'), route:L('வேளாண்மை டிப்ளமோ · 2 ஆண்டுகள் · +2-க்குப் பின்','Diploma in Agriculture · 2 years · after Class 12'), after:12, kind:'diploma', tech:false, prof:false, usual:false,
+    tags:{outdoors:3, science:2}, subject:L('அறிவியல்','science'), group:L('உயிரியல்','Biology'),
+    visit:L('அருகிலுள்ள வேளாண் அறிவியல் மையத்துக்குச் செல்','Visit the nearest Krishi Vigyan Kendra'),
+    story:L('வேளாண் டிப்ளமோ முடித்து விவசாயிகளுக்கு மண் பரிசோதனை செய்ய உதவுகிறேன்.','After my agriculture diploma, I help farmers test their soil.') },
+  { id:'garment', name:L('ஆடை வடிவமைப்பாளர்','Garment designer'), route:L('ஆடை தொழில்நுட்ப டிப்ளமோ · 3 ஆண்டுகள் · 10-க்குப் பின்','Diploma in Garment Technology · 3 years · after Class 10'), after:10, kind:'diploma', tech:true, prof:false, usual:false,
+    tags:{craft:3, numbers:1}, subject:L('கணிதம்','maths'), group:null,
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு பாலிடெக்னிக்குக்குச் செல்','Visit the nearest Government Polytechnic with your teacher'),
+    story:L('அம்மாவிடம் தையல் கற்றேன். டிப்ளமோ முடித்து திருப்பூரில் ஆடை வடிவமைக்கிறேன்.','I learned tailoring from my mother. After the diploma, I design clothes in Tiruppur.') },
+  { id:'teacher', name:L('ஆசிரியர்','Teacher'), route:L('D.El.Ed · 2 ஆண்டுகள் · +2-க்குப் பின்','D.El.Ed · 2 years · after Class 12'), after:12, kind:'diploma', tech:false, prof:false, usual:true,
+    tags:{people:3, care:2}, subject:L('தமிழ்','Tamil'), group:L('எந்தப் பிரிவும்','any'),
+    visit:L('ஒரு தொடக்கப் பள்ளி வகுப்பில் ஒரு நாள் உதவி செய்','Help out for a day in a primary school class'),
+    story:L('என் ஆசிரியரைப் பார்த்துத்தான் ஆசிரியர் ஆனேன். இப்போது அதே பள்ளியில் பாடம் நடத்துகிறேன்.','My teacher inspired me. Now I teach at the same school.') },
+  { id:'civil', name:L('சிவில் பொறியியல் டிப்ளமோ','Civil engineering diploma'), route:L('பாலிடெக்னிக் · 3 ஆண்டுகள் · 10-க்குப் பின்','Polytechnic · 3 years · after Class 10'), after:10, kind:'diploma', tech:true, prof:false, usual:false,
+    tags:{mechanical:2, numbers:2, outdoors:1}, subject:L('கணிதம்','maths'), group:null,
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு பாலிடெக்னிக்குக்குச் செல்','Visit the nearest Government Polytechnic with your teacher'),
+    story:L('பாலிடெக்னிக் முடித்து சாலை கட்டுமானத் திட்டத்தில் தள மேற்பார்வையாளராக இருக்கிறேன்.','After polytechnic, I am a site supervisor on a road project.') },
+  { id:'copa', name:L('கணினி இயக்குநர்','Computer operator'), route:L('ITI COPA · 1 ஆண்டு · 10-க்குப் பின்','ITI COPA · 1 year · after Class 10'), after:10, kind:'iti', tech:false, prof:false, usual:false,
+    tags:{computers:3, numbers:1}, subject:L('கணிதம்','maths'), group:null,
+    visit:L('அருகிலுள்ள இ-சேவை மையத்தில் ஒரு மணி நேரம் பார்','Spend an hour watching how an e-Sevai centre works'),
+    story:L('ஒரு ஆண்டு COPA படித்தேன். இப்போது இ-சேவை மையத்தில் வேலை செய்கிறேன்.','I did a one-year COPA course. Now I work at an e-Sevai centre.') },
+  { id:'pharma', name:L('மருந்தாளுநர்','Pharmacist'), route:L('D.Pharm · 2 ஆண்டுகள் · +2-க்குப் பின்','D.Pharm · 2 years · after Class 12'), after:12, kind:'diploma', tech:false, prof:false, usual:false,
+    tags:{science:3, care:1}, subject:L('அறிவியல்','science'), group:L('உயிரியல்','Biology'),
+    visit:L('அருகிலுள்ள அரசு மருத்துவமனை மருந்தகத்துக்குச் செல்','Visit a government hospital pharmacy'),
+    story:L('D.Pharm முடித்து எங்கள் ஊரிலேயே மருந்தகத்தில் வேலை செய்கிறேன்.','After D.Pharm, I work at a pharmacy in my own town.') },
+  { id:'engineering', name:L('பொறியாளர் (B.E.)','Engineer (B.E.)'), route:L('B.E./B.Tech · 4 ஆண்டுகள் · +2-க்குப் பின்','B.E./B.Tech · 4 years · after Class 12'), after:12, kind:'degree', tech:true, prof:true, usual:true,
+    tags:{numbers:2, science:2, computers:1}, subject:L('கணிதம்','maths'), group:L('கணிதம்-அறிவியல்','Maths-Science'),
+    visit:L('ஆசிரியருடன் அருகிலுள்ள அரசு பொறியியல் கல்லூரிக்குச் செல்','Visit the nearest government engineering college with your teacher'),
+    story:L('குடும்பத்தில் முதல் பட்டதாரி நான். 7.5% ஒதுக்கீட்டில் பொறியியல் படித்தேன்.','I am the first graduate in my family. I studied engineering through the 7.5% quota.') },
+  { id:'graphic', name:L('கிராஃபிக் வடிவமைப்பாளர்','Graphic designer'), route:L('சான்றிதழ் படிப்பு · 1 ஆண்டு · 10-க்குப் பின்','Certificate course · 1 year · after Class 10'), after:10, kind:'iti', tech:false, prof:false, usual:false,
+    tags:{craft:2, computers:2}, subject:L('கணினி','computers'), group:null,
+    visit:L('அருகிலுள்ள அச்சகம் அல்லது விளம்பரக் கடைக்குச் செல்','Visit a local print shop or sign maker'),
+    story:L('கோலம் போடுவது எனக்குப் பிடிக்கும். இப்போது கடைகளுக்கு விளம்பரங்கள் வடிவமைக்கிறேன்.','I love drawing kolams. Now I design posters for shops.') }
+];
+var PATH = {}; PATHS.forEach(function(p){ PATH[p.id] = p; });
+
+function skillsFrom(answers){
+  var sk = {};
+  QUESTIONS.forEach(function(q){
+    var o = q.opts.filter(function(x){ return x.id === answers[q.id]; })[0];
+    if (o) Object.keys(o.tags).forEach(function(k){ sk[k] = (sk[k] || 0) + o.tags[k]; });
+  });
+  return sk;
+}
+function primaryTag(p){ return Object.keys(p.tags).sort(function(a, b){ return p.tags[b] - p.tags[a]; })[0]; }
+// recommend() takes the profile only so tests can prove it is ignored: gender is never read here.
+function recommend(answers, profile){
+  var sk = skillsFrom(answers);
+  var scored = PATHS.map(function(p, i){
+    var s = 0; Object.keys(p.tags).forEach(function(k){ s += p.tags[k] * (sk[k] || 0); });
+    return { path:p, score:s, i:i };
+  });
+  var cmp = function(a, b){ return b.score - a.score || a.i - b.i; };
+  scored.sort(cmp);
+  var pool = scored.slice(), picks = [], usual = 0, prim = {};
+  while (picks.length < 3 && pool.length) {
+    var best = null, bestVal = -1e9;
+    pool.forEach(function(c){
+      if (c.path.usual && usual >= 1) return;
+      var v = c.score - (prim[primaryTag(c.path)] ? 2 : 0);
+      if (v > bestVal) { bestVal = v; best = c; }
+    });
+    if (!best) break;
+    picks.push(best); pool.splice(pool.indexOf(best), 1);
+    if (best.path.usual) usual++;
+    prim[primaryTag(best.path)] = true;
+  }
+  if (!picks.some(function(c){ return c.path.kind !== 'degree'; })) {
+    var voc = pool.filter(function(c){ return c.path.kind !== 'degree' && !c.path.usual; })[0];
+    if (voc) { pool.splice(pool.indexOf(voc), 1); pool.push(picks.pop()); picks.push(voc); pool.sort(cmp); }
+  }
+  var wild = pool.filter(function(c){ return !c.path.usual && !prim[primaryTag(c.path)]; })[0] || pool.filter(function(c){ return !c.path.usual; })[0] || null;
+  return { picks:picks, wild:wild, skills:sk };
+}
+
+/* ---------------- schemes as rules ---------------- */
+// Each check returns true, false, null (we need an answer), 'likely', 'future' (met later if she stays on track) or 'path' (depends on the course she picks).
+var INC = { lt1:1, '1to2.5':2.5, '2.5to4.5':4.5, '4.5to8':8, gt8:99 };
+function incomeAtMost(p, lakh){ if (p.income == null || p.income === 'unknown') return null; return INC[p.income] <= lakh; }
+function schoolOK(p, types){
+  if (p.school == null || p.since6 == null) return null;
+  if (types.indexOf(p.school) < 0 || p.since6 !== true) return false;
+  return (p.cls != null && p.cls < 12) ? 'future' : true;
+}
+function obcDnt(p){ var c = p.community; if (c == null || c === 'NA') return null; if (c === 'DNC') return true; if (c === 'BC' || c === 'MBC') return 'likely'; return false; }
+function comm(p, want){ if (p.community == null || p.community === 'NA') return null; return p.community === want; }
+function needPath(test){ return function(p, path){ return path ? test(path) : 'path'; }; }
+function C(code, label, fn, extra){ var c = { code:code, label:label, fn:fn }; if (extra) Object.keys(extra).forEach(function(k){ c[k] = extra[k]; }); return c; }
+var STAY = L('12ஆம் வகுப்பு வரை இதே வகைப் பள்ளியில் படி','keep studying in the same kind of school till Class 12');
+
+var SCHEMES = [
+  { id:'pudhumai', name:L('புதுமைப் பெண் திட்டம்','Pudhumai Penn'), by:'Govt of Tamil Nadu', when:'entry',
+    benefit:L('பட்டம், டிப்ளமோ அல்லது ITI படிக்கும்போது மாதம் ₹1,000','₹1,000 a month during a degree, diploma or ITI'),
+    checks:[
+      C('gender in [girl, third]', L('மாணவி அல்லது மூன்றாம் பாலினத்தவர்','girl or third-gender student'), function(p){ return p.gender == null ? null : (p.gender === 'girl' || p.gender === 'third'); }),
+      C('school in [govt, aided] && since_class6', L('6 முதல் 12 வரை அரசு அல்லது அரசு உதவி பெறும் பள்ளியில் படிப்பு','Class 6 to 12 in a government or government-aided school'), function(p){ return schoolOK(p, ['govt','aided']); }, { future:STAY })
+    ], docs:['aadhaar','bank'],
+    source:{ label:'Deccan Herald (2022); The News Minute (Dec 2024 extension)', url:'https://www.thenewsminute.com/tamil-nadu/stalin-to-inaugurate-extension-of-pudhumai-penn-scheme-for-school-girls' } },
+  { id:'pudhalvan', name:L('தமிழ்ப் புதல்வன் திட்டம்','Tamil Pudhalvan'), by:'Govt of Tamil Nadu', when:'entry',
+    benefit:L('உயர்கல்வி படிக்கும்போது மாதம் ₹1,000','₹1,000 a month during higher education'),
+    checks:[
+      C('gender in [boy, third]', L('மாணவர் அல்லது மூன்றாம் பாலினத்தவர்','boy or third-gender student'), function(p){ return p.gender == null ? null : (p.gender === 'boy' || p.gender === 'third'); }),
+      C('school in [govt, aided] && since_class6', L('6 முதல் 12 வரை அரசு அல்லது அரசு உதவி பெறும் பள்ளியில் படிப்பு','Class 6 to 12 in a government or government-aided school'), function(p){ return schoolOK(p, ['govt','aided']); }, { future:STAY }),
+      C('medium == tamil', L('தமிழ் வழியில் படிப்பு','studied in Tamil medium'), function(p){ return p.medium == null ? null : p.medium === 'tamil'; })
+    ], docs:['aadhaar','bank'],
+    source:{ label:'DT Next, Aug 2024', url:'https://www.dtnext.in/news/tamilnadu/cm-stalin-inaugurates-tamil-puthalvan-scheme-rs-1000-monthly-aid-to-be-given-to-college-boys-798766' } },
+  { id:'quota75', name:L('அரசுப் பள்ளி மாணவர்களுக்கு 7.5% இட ஒதுக்கீடு','7.5% seats for government school students'), by:'Govt of Tamil Nadu', when:'entry',
+    benefit:L('பொறியியல், மருத்துவம் போன்ற படிப்புகளில் 7.5% இடங்கள், கல்விக் கட்டண விலக்குடன்','7.5% of seats in engineering, medicine and other professional courses, with a tuition fee waiver'),
+    checks:[
+      C('school == govt && since_class6', L('6 முதல் 12 வரை அரசுப் பள்ளியில் படிப்பு','Class 6 to 12 in a government school'), function(p){ return schoolOK(p, ['govt']); }, { future:STAY }),
+      C('course.professional', L('பொறியியல், மருத்துவம் போன்ற தொழில்முறைப் படிப்பு','a professional course such as engineering or medicine'), needPath(function(c){ return c.prof; }), { ifText:L('பொறியியல் அல்லது மருத்துவம் தேர்ந்தால்','if you choose engineering or medicine') })
+    ], docs:[],
+    source:{ label:'Directorate of Technical Education, Tamil Nadu', url:'https://dte.tn.gov.in/reservation-scheme' } },
+  { id:'firstgrad', name:L('முதல் பட்டதாரி கல்விக் கட்டணச் சலுகை','First graduate tuition fee concession'), by:'Govt of Tamil Nadu', when:'entry',
+    benefit:L('ஒற்றைச் சாளரக் கலந்தாய்வு மூலம் பொறியியலில் சேரும் முதல் தலைமுறைப் பட்டதாரிகளுக்கு ஆண்டுக்கு ₹27,500 வரை','Up to ₹27,500 a year off tuition for first-generation graduates who join engineering through counselling'),
+    checks:[
+      C('first_graduate == true', L('குடும்பத்தில் முதல் பட்டதாரி','first graduate in the family'), function(p){ return p.firstGen === true ? true : p.firstGen === false ? false : null; }),
+      C('course == engineering (single-window counselling)', L('கலந்தாய்வு மூலம் பொறியியல் சேர்க்கை','engineering admission through single-window counselling'), needPath(function(c){ return c.id === 'engineering'; }), { ifText:L('பொறியியல் தேர்ந்தால்','if you choose engineering') })
+    ], docs:[],
+    source:{ label:'Directorate of Technical Education, Tamil Nadu', url:'https://dte.tn.gov.in/schemes-engineering-students' } },
+  { id:'csss', name:L('மத்திய கல்லூரி உதவித்தொகை (CSSS)','Central Sector Scholarship (CSSS)'), by:'Govt of India', when:'entry',
+    benefit:L('பட்டப் படிப்பின் முதல் மூன்று ஆண்டுகளுக்கு ஆண்டுக்கு ₹12,000','₹12,000 a year for the first three years of a degree'),
+    checks:[
+      C('class12_percentile > 80', L('+2 மதிப்பெண் வாரியத்தின் முதல் 20%-க்குள்','Class 12 marks in your board’s top 20%'), function(p){ if (p.cls != null && p.cls < 12) return 'future'; return p.top20 === true ? true : p.top20 === false ? false : null; }, { future:L('+2 மதிப்பெண் முதல் 20%-க்குள் வந்தால்','if your Class 12 marks are in the top 20%') }),
+      C('family_income <= 4.5 lakh', L('குடும்ப வருமானம் ₹4.5 லட்சத்துக்குள்','family income up to ₹4.5 lakh'), function(p){ return incomeAtMost(p, 4.5); }),
+      C('course.kind == degree (regular)', L('நேரடி பட்டப் படிப்பு (டிப்ளமோ இல்லை)','a regular degree, not a diploma'), needPath(function(c){ return c.kind === 'degree'; }), { ifText:L('பட்டப் படிப்பு தேர்ந்தால்','if you choose a degree') })
+    ], docs:['income','aadhaar','bank'],
+    source:{ label:'National Scholarship Portal, CSSS FAQ', url:'https://scholarships.gov.in/public/schemeGuidelines/FAQ_DOHE_CSSS.pdf' } },
+  { id:'pragati', name:L('AICTE பிரகதி உதவித்தொகை','AICTE Pragati scholarship'), by:'AICTE, Govt of India', when:'entry',
+    benefit:L('கட்டணத்துக்கு ₹30,000 வரை, மேலும் 10 மாதங்களுக்கு மாதம் ₹2,000','Up to ₹30,000 for fees, plus ₹2,000 a month for 10 months'),
+    checks:[
+      C('gender == girl', L('மாணவி','girl student'), function(p){ return p.gender == null ? null : p.gender === 'girl'; }),
+      C('family_income <= 8 lakh', L('குடும்ப வருமானம் ₹8 லட்சத்துக்குள்','family income up to ₹8 lakh'), function(p){ return incomeAtMost(p, 8); }),
+      C('course.aicte_technical && first_year', L('AICTE அங்கீகாரம் பெற்ற தொழில்நுட்ப டிப்ளமோ அல்லது பட்டம்','an AICTE-approved technical diploma or degree'), needPath(function(c){ return c.tech; }), { ifText:L('தொழில்நுட்ப டிப்ளமோ அல்லது பட்டம் தேர்ந்தால்','if you choose a technical diploma or degree') })
+    ], docs:['income','aadhaar','bank'],
+    source:{ label:'AICTE Pragati guidelines', url:'https://aicte.gov.in/sites/default/files/pragatisaksham.pdf' } },
+  { id:'yasasvi_pre', name:L('PM யசஸ்வி: 9, 10ஆம் வகுப்பு உதவித்தொகை','PM YASASVI pre-matric (OBC, EBC, DNT)'), by:'Govt of India', when:'9-10',
+    benefit:L('9, 10ஆம் வகுப்பில் ஆண்டுக்கு ₹4,000','₹4,000 a year in Class 9 and 10'),
+    checks:[
+      C('community in OBC/DNT', L('OBC அல்லது சீர்மரபினர் (DNT) சமூகம்','OBC or DNT community'), obcDnt),
+      C('family_income <= 2.5 lakh', L('குடும்ப வருமானம் ₹2.5 லட்சத்துக்குள்','family income up to ₹2.5 lakh'), function(p){ return incomeAtMost(p, 2.5); }),
+      C('school == govt', L('அரசுப் பள்ளியில் படிப்பு','studying in a government school'), function(p){ return p.school == null ? null : p.school === 'govt'; })
+    ], docs:['income','community','aadhaar','bank'],
+    source:{ label:'PIB backgrounder, Oct 2024', url:'https://static.pib.gov.in/WriteReadData/specificdocs/documents/2024/oct/doc20241023421901.pdf' } },
+  { id:'yasasvi_post', name:L('PM யசஸ்வி: 10-க்குப் பிந்தைய உதவித்தொகை','PM YASASVI post-matric (OBC, EBC, DNT)'), by:'Govt of India', when:'11+',
+    benefit:L('10ஆம் வகுப்புக்குப் பின் ஆண்டுக்கு ₹5,000 முதல் ₹20,000','₹5,000 to ₹20,000 a year after Class 10'),
+    checks:[
+      C('community in OBC/DNT', L('OBC அல்லது சீர்மரபினர் (DNT) சமூகம்','OBC or DNT community'), obcDnt),
+      C('family_income <= 2.5 lakh', L('குடும்ப வருமானம் ₹2.5 லட்சத்துக்குள்','family income up to ₹2.5 lakh'), function(p){ return incomeAtMost(p, 2.5); })
+    ], docs:['income','community','aadhaar','bank'],
+    source:{ label:'PIB backgrounder, Oct 2024', url:'https://static.pib.gov.in/WriteReadData/specificdocs/documents/2024/oct/doc20241023421901.pdf' } },
+  { id:'sc_pre', name:L('SC மாணவர்களுக்கான 9, 10ஆம் வகுப்பு உதவித்தொகை','Pre-matric scholarship for SC students'), by:'Govt of India', when:'9-10',
+    benefit:L('9, 10ஆம் வகுப்பில் ஆண்டு உதவித்தொகை','A yearly scholarship in Class 9 and 10'),
+    checks:[
+      C('community == SC', L('SC சமூகம்','SC community'), function(p){ return comm(p, 'SC'); }),
+      C('family_income <= 2.5 lakh', L('குடும்ப வருமானம் ₹2.5 லட்சத்துக்குள்','family income up to ₹2.5 lakh'), function(p){ return incomeAtMost(p, 2.5); })
+    ], docs:['income','community','aadhaar','bank'],
+    source:{ label:'Ministry of Social Justice & Empowerment', url:'https://socialjustice.gov.in/schemes/23' } },
+  { id:'sc_post', name:L('SC மாணவர்களுக்கான 10-க்குப் பிந்தைய உதவித்தொகை','Post-matric scholarship for SC students'), by:'Govt of India', when:'11+',
+    benefit:L('11ஆம் வகுப்பு முதல் கட்டணமும் ஆண்டு உதவியும்','Fees and a yearly allowance from Class 11 onwards'),
+    checks:[
+      C('community == SC', L('SC சமூகம்','SC community'), function(p){ return comm(p, 'SC'); }),
+      C('family_income <= 2.5 lakh', L('குடும்ப வருமானம் ₹2.5 லட்சத்துக்குள்','family income up to ₹2.5 lakh'), function(p){ return incomeAtMost(p, 2.5); })
+    ], docs:['income','community','aadhaar','bank'],
+    source:{ label:'National Scholarship Portal', url:'https://scholarships.gov.in/' } },
+  { id:'st_post', name:L('ST மாணவர்களுக்கான 10-க்குப் பிந்தைய உதவித்தொகை','Post-matric scholarship for ST students'), by:'Govt of India', when:'11+',
+    benefit:L('11ஆம் வகுப்பு முதல் கட்டணமும் ஆண்டு உதவியும்','Fees and a yearly allowance from Class 11 onwards'),
+    checks:[
+      C('community == ST', L('ST சமூகம்','ST community'), function(p){ return comm(p, 'ST'); }),
+      C('family_income <= 2.5 lakh', L('குடும்ப வருமானம் ₹2.5 லட்சத்துக்குள்','family income up to ₹2.5 lakh'), function(p){ return incomeAtMost(p, 2.5); })
+    ], docs:['income','community','aadhaar','bank'],
+    source:{ label:'National Scholarship Portal', url:'https://scholarships.gov.in/' } }
+];
+var SCHEME = {}; SCHEMES.forEach(function(s){ SCHEME[s.id] = s; });
+
+function timing(when, cls){
+  if (cls == null) return null;
+  if (when === '9-10') return cls <= 10 ? 'now' : 'past';
+  if (when === '11+') return cls >= 11 ? 'now' : 'later';
+  return cls >= 13 ? 'now' : 'later';
+}
+function evaluate(s, p, path){
+  var trace = s.checks.map(function(c){ return { c:c, r:c.fn(p, path || null) }; });
+  var rs = trace.map(function(x){ return x.r; });
+  var tm = timing(s.when, p.cls);
+  var status;
+  if (rs.indexOf(false) >= 0 || tm === 'past') status = 'no';
+  else if (tm == null || rs.indexOf(null) >= 0) status = 'ask';
+  else if (rs.indexOf('path') >= 0) status = 'if';
+  else if (tm === 'later' || rs.indexOf('future') >= 0) status = 'later';
+  else status = rs.indexOf('likely') >= 0 ? 'likely' : 'yes';
+  var missing = s.docs.filter(function(d){ return !(p.docs && p.docs[d] === true); });
+  return { s:s, status:status, trace:trace, timing:tm, likely:rs.indexOf('likely') >= 0, missing:missing };
+}
+function evaluateAll(p, path){ return SCHEMES.map(function(s){ return evaluate(s, p, path); }); }
+
+var DOCS = {
+  aadhaar:{ name:L('ஆதார் அட்டை','Aadhaar card'), how:L('அருகிலுள்ள ஆதார் அல்லது இ-சேவை மையம்','Nearest Aadhaar or e-Sevai centre') },
+  bank:{ name:L('ஆதாருடன் இணைந்த வங்கிக் கணக்கு','Bank account linked to Aadhaar'), how:L('அருகிலுள்ள வங்கி அல்லது அஞ்சலகம் (IPPB)','Nearest bank branch or post office (IPPB)') },
+  income:{ name:L('வருமானச் சான்றிதழ்','Income certificate'), how:L('இ-சேவை மையம் வழியாக வட்டாட்சியர் அலுவலகம்','Taluk office, through the e-Sevai centre') },
+  community:{ name:L('சாதிச் சான்றிதழ்','Community certificate'), how:L('இ-சேவை மையம் வழியாக வட்டாட்சியர் அலுவலகம்','Taluk office, through the e-Sevai centre') }
+};
+var BLOCKER = { bank:'Bank account (Aadhaar)', income:'Income certificate', community:'Community certificate', aadhaar:'Aadhaar update', nopath:'No path yet' };
+
+/* ---------------- plan ---------------- */
+function relevantMissing(evals){
+  var seen = {}, out = [];
+  evals.forEach(function(e){ if (['yes','likely','later'].indexOf(e.status) >= 0) e.missing.forEach(function(d){ if (!seen[d]) { seen[d] = 1; out.push(d); } }); });
+  var order = ['bank','income','community','aadhaar'];
+  return out.sort(function(a, b){ return order.indexOf(a) - order.indexOf(b); });
+}
+var DOC_TASK = {
+  bank:L('ஆதாருடன் இணைந்த வங்கிக் கணக்கைத் தொடங்கு','Open a bank account linked to Aadhaar'),
+  income:L('இ-சேவை மையத்தில் வருமானச் சான்றிதழுக்கு விண்ணப்பி','Apply for an income certificate at the e-Sevai centre'),
+  community:L('இ-சேவை மையத்தில் சாதிச் சான்றிதழுக்கு விண்ணப்பி','Apply for a community certificate at the e-Sevai centre'),
+  aadhaar:L('ஆதார் அட்டை பதிவு செய்','Get your Aadhaar card made')
+};
+function makePlan(path, p, evals){
+  var weeks = [[], [], [], []], n = 0;
+  function add(w, text){ weeks[w].push({ id:'t' + (++n), text:text }); }
+  add(0, L(path.name.ta + ' வேலை பற்றி DIKSHA-வில் ஒரு சிறு பாடம் பார்', 'Watch a short DIKSHA lesson about the work of a ' + path.name.en.toLowerCase()));
+  add(0, L('இன்னும் இரண்டு கதைகள் கேள்','Listen to two more stories'));
+  add(1, L('தினமும் 20 நிமிடம் ' + path.subject.ta + ' பயிற்சி செய் (DIKSHA)', 'Practise ' + path.subject.en + ' for 20 minutes a day (DIKSHA)'));
+  relevantMissing(evals).forEach(function(d, i){ add(i < 2 ? 1 : 2, DOC_TASK[d]); });
+  add(2, path.visit);
+  var cls = p.cls || 10;
+  if (cls <= 10 && path.after === 12 && path.group) add(3, L('பெற்றோர், ஆசிரியருடன் பேசி 11ஆம் வகுப்பில் ' + path.group.ta + ' பிரிவைத் தேர்வு செய்','Decide with your parents and teacher: ' + path.group.en + ' group in Class 11'));
+  else if (cls <= 10 && path.after === 10) add(3, L('பெற்றோருடன் பேசி 10-க்குப் பின் விண்ணப்பிக்கும் இடங்களின் பட்டியல் தயார் செய்','Make a list of the ITIs or polytechnics to apply to, with your parents'));
+  else add(3, L('பெற்றோர், ஆசிரியருடன் பேசி விண்ணப்பிக்கும் கல்லூரிகளைத் தேர்வு செய்','Choose the colleges to apply to, with your parents and teacher'));
+  return weeks;
+}
+function nextDecision(path, p){
+  var cls = p.cls || 10, out = [];
+  if (cls === 10) out.push(L('10ஆம் வகுப்புப் பொதுத் தேர்வு: மார்ச்–ஏப்ரல் 2027 (எதிர்பார்ப்பு)','Class 10 public exam: March to April 2027 (expected)'));
+  if (cls <= 10 && path.after === 10) out.push(L('10ஆம் வகுப்பு முடிவுகளுக்குப் பின் அரசு ITI / பாலிடெக்னிக்கில் விண்ணப்பி (வழக்கமாக மே–ஜூன்)','Apply to a Government ITI or polytechnic after Class 10 results (usually May to June)'));
+  else if (cls <= 10) out.push(L('10ஆம் வகுப்பு முடிவுகளுக்குப் பின் 11ஆம் வகுப்புப் பிரிவைத் தேர்வு செய் (வழக்கமாக மே)','Choose your Class 11 group after Class 10 results (usually May)'));
+  else if (cls <= 12) out.push(L('+2 முடிவுகளுக்குப் பின் விண்ணப்பி (வழக்கமாக மே–ஜூன்)','Apply after Class 12 results (usually May to June)'));
+  else out.push(L('உதவித்தொகை விண்ணப்பம் திறந்ததும் நினைவூட்டல் வரும்','You get a reminder when scholarship applications open'));
+  return out;
+}
+
+/* ---------------- class for the teacher view (sample data) ---------------- */
+var CLASSMATES = [
+  ['10B-01','Anitha R','nursing',5,'bank'], ['10B-02','Karthik S','bike',8,null], ['10B-03','Divya M','labtech',3,'income'],
+  ['10B-04','Ravi P',null,0,'nopath'], ['10B-05','Meena K','civil',6,null], ['10B-06','Arun K','solar',4,'aadhaar'],
+  ['10B-08','Priya V','accounts',7,null], ['10B-09','Suresh T','mobile',2,'bank'], ['10B-10','Kaviya B','garment',5,null],
+  ['10B-11','Vignesh R',null,0,'nopath'], ['10B-12','Deepa L','teacher',6,null], ['10B-13','Manoj G','copa',8,null],
+  ['10B-14','Lakshmi N','pharma',4,'income'], ['10B-15','Sathish V','agri',3,null], ['10B-16','Revathi S','graphic',5,'community'],
+  ['10B-17','Balaji M','engineering',2,'bank'], ['10B-18','Nandhini P','labtech',6,null], ['10B-19','Gokul A','solar',7,null],
+  ['10B-20','Janani R',null,0,'nopath'], ['10B-21','Harish K','bike',5,null], ['10B-22','Pavithra D','nursing',8,null],
+  ['10B-23','Dinesh S','civil',3,'income'], ['10B-24','Sowmya T','accounts',6,null], ['10B-25','Ajay V','mobile',1,null]
+];
+
+/* ---------------- state ---------------- */
+function blankProfile(){ return { gender:null, cls:null, school:null, since6:null, medium:null, community:null, income:null, firstGen:null, top20:null, docs:{ aadhaar:null, bank:null, income:null, community:null } }; }
+var KAVYA = { answers:{ home:'accounts', school:'science', style:'help' },
+  profile:{ gender:'girl', cls:10, school:'govt', since6:true, medium:'tamil', community:'MBC', income:'1to2.5', firstGen:true, top20:null, docs:{ aadhaar:true, bank:false, income:false, community:true } } };
+var S;
+function freshState(){
+  return { lang:'bi', screen:'lock', who:null, user:null, userTa:null, pin:[], pinMsg:null, answers:{}, profile:blankProfile(),
+    path:null, plan:null, done:{}, story:null, sheet:null, panel:'teacher', listening:false, tests:null };
+}
+S = freshState();
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function currentPath(){ return S.path ? PATH[S.path] : null; }
+function qIndex(){ for (var i = 0; i < QUESTIONS.length; i++) if (!S.answers[QUESTIONS[i].id]) return i; return QUESTIONS.length; }
+
+/* ---------------- speech (browser APIs; IndicConformer and Indic Parler-TTS replace these in the real app) ---------------- */
+function speak(x){
+  try {
+    if (!('speechSynthesis' in window)) { toast('This browser cannot read aloud. The text is on screen.'); return; }
+    var voices = window.speechSynthesis.getVoices() || [];
+    var ta = voices.filter(function(v){ return /^ta/i.test(v.lang); })[0];
+    var u;
+    if (ta && S.lang !== 'en') { u = new SpeechSynthesisUtterance(x.ta); u.voice = ta; u.lang = ta.lang; }
+    else {
+      var en = voices.filter(function(v){ return /^en-IN/i.test(v.lang); })[0] || voices.filter(function(v){ return /^en/i.test(v.lang); })[0];
+      u = new SpeechSynthesisUtterance(x.en); if (en) { u.voice = en; u.lang = en.lang; }
+      if (S.lang !== 'en') toast('No Tamil voice on this device, so it reads in English. The app uses Indic Parler-TTS for Tamil.');
+    }
+    u.rate = 0.95; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+  } catch (e) { toast('Could not read aloud here. The text is on screen.'); }
+}
+function listen(qi){
+  var R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!R) { toast('Voice input needs Chrome with internet. Tap a picture instead.'); return; }
+  try {
+    var rec = new R(); rec.lang = 'ta-IN'; rec.interimResults = false; rec.maxAlternatives = 3;
+    S.listening = true; render();
+    rec.onresult = function(ev){
+      var heard = [];
+      for (var i = 0; i < ev.results[0].length; i++) heard.push(ev.results[0][i].transcript.toLowerCase());
+      var q = QUESTIONS[qi], match = null;
+      q.opts.forEach(function(o){ if (!match && o.kw.some(function(k){ return heard.some(function(h){ return h.indexOf(k.toLowerCase()) >= 0; }); })) match = o; });
+      S.listening = false;
+      if (match) { answer(q.id, match.id); toast('Heard: “' + heard[0] + '”'); }
+      else { render(); toast('Heard “' + heard[0] + '”. Tap the closest picture.'); }
+    };
+    rec.onerror = function(ev){ S.listening = false; render(); toast(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'The microphone is blocked here. Tap a picture instead.' : 'Could not hear that. Tap a picture instead.'); };
+    rec.onend = function(){ if (S.listening) { S.listening = false; render(); } };
+    rec.start();
+  } catch (e) { S.listening = false; render(); toast('Voice input is not available here. Tap a picture instead.'); }
+}
+
+/* ---------------- actions ---------------- */
+function answer(qid, oid){ S.answers[qid] = oid; render(); }
+function choosePath(id){
+  S.path = id; var path = PATH[id];
+  S.plan = makePlan(path, S.profile, evaluateAll(S.profile, path)); S.done = {};
+  S.screen = 'plan'; render(); toast('Plan ready for ' + path.name.en + '.');
+}
+function reroute(){
+  if (!S.plan) return;
+  for (var w = 0; w < 4; w++) {
+    var open = S.plan[w].filter(function(t){ return !S.done[t.id]; });
+    if (open.length) {
+      if (w === 3) { toast('This is the last week. We will remind you again in 3 days.'); return; }
+      S.plan[w] = S.plan[w].filter(function(t){ return S.done[t.id]; });
+      S.plan[w + 1] = open.concat(S.plan[w + 1]);
+      render(); toast('Plan updated: ' + open.length + ' step' + (open.length > 1 ? 's' : '') + ' moved to week ' + (w + 2) + '.'); return;
+    }
+  }
+  toast('Every step is done.');
+}
+function syncPayload(){
+  var path = currentPath(), evals = evaluateAll(S.profile, path), miss = relevantMissing(evals);
+  var all = S.plan ? [].concat.apply([], S.plan) : [], done = all.filter(function(t){ return S.done[t.id]; }).length;
+  var step = qIndex() < QUESTIONS.length ? 'discover' : !path ? 'paths' : 'plan';
+  var blocker = !path ? 'no_path_yet' : miss[0] === 'bank' ? 'bank_account_aadhaar' : miss[0] ? miss[0] + '_certificate' : null;
+  if (miss[0] === 'aadhaar') blocker = 'aadhaar';
+  return { student:'10B-07', step:step, path:path ? path.id : null, plan_done:S.plan ? done + '/' + all.length : null, blocker:blocker, synced_at:new Date().toISOString().slice(0, 16) + 'Z' };
+}
+
+/* ---------------- toast ---------------- */
+var toastTimer = null;
+function toast(msg){ var t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.hidden = true; }, 3800); }
+
+/* ---------------- phone screens ---------------- */
+function phTop(){
+  var online = navigator.onLine !== false;
+  return '<div class="brand">OpenPath' + (S.user ? '<small>' + esc(S.user) + '</small>' : '') + '</div>' +
+    '<div class="ph-tools"><span class="net ' + (online ? '' : 'off') + '">' + (online ? 'Online' : 'Offline: still works') + '</span>' +
+    '<button class="iconbtn" data-act="lang" aria-label="Switch language">' + (S.lang === 'en' ? 'தமிழ்' : 'EN') + '</button>' +
+    (S.user ? '<button class="iconbtn" data-act="lock" aria-label="Lock and switch user">' + ic('lock') + '</button>' : '') + '</div>';
+}
+function scrLock(){
+  if (!S.who) {
+    var people = [['kavya','K','Kavya',L('மாணவி, 10ஆம் வகுப்பு','Student, Class 10')], ['anbu','A','Anbu',L('அண்ணன், ITI மாணவர்','Elder brother, ITI student')]];
+    return '<div class="stack"><h2 class="h">' + bi(L('இந்த போனை யார் பயன்படுத்துகிறீர்கள்?','Who is using this phone?')) + '</h2>' +
+      '<p class="note">' + bi(L('ஒரே போனில் ஒவ்வொருவருக்கும் படக் குறியீட்டுடன் தனி சுயவிவரம்.','On a shared family phone, each person gets a private profile with a picture PIN.')) + '</p>' +
+      '<div class="who">' + people.map(function(x){ return '<button data-act="who" data-id="' + x[0] + '"><span class="avatar">' + x[1] + '</span><span><b>' + x[2] + '</b>' + bi(x[3]) + '</span></button>'; }).join('') +
+      '<button data-act="who" data-id="new"><span class="avatar">+</span><span>' + bi(L('புதிய மாணவர்','New student')) + '</span></button></div></div>';
+  }
+  var initial = S.who === 'anbu' ? 'A' : 'K';
+  return '<div class="stack center"><span class="avatar big">' + initial + '</span>' +
+    '<h2 class="h">' + bi(L('உன் படக் குறியீட்டைத் தொடு','Tap your picture PIN')) + '</h2>' +
+    '<div class="dots">' + [0, 1, 2].map(function(i){ return '<span class="dot ' + (S.pin.length > i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
+    '<div class="pinpad">' + Object.keys(PIN_SVG).map(function(k){ return '<button class="pin" data-act="pin" data-id="' + k + '" aria-label="' + PIN_NAME[k].en + '">' + PIN_SVG[k] + '<span>' + esc(S.lang === 'en' ? PIN_NAME[k].en : PIN_NAME[k].ta) + '</span></button>'; }).join('') + '</div>' +
+    (S.pinMsg ? '<p class="warn">' + bi(S.pinMsg) + '</p>' : '') +
+    '<p class="hint">Demo PIN for Kavya: sun, leaf, star</p>' +
+    '<button class="link" data-act="who-back">' + bi(L('வேறு நபர்','Someone else')) + '</button></div>';
+}
+function scrDiscover(){
+  var nameTa = S.userTa ? S.userTa + '! ' : '! ', nameEn = S.user && S.user !== 'New student' ? ' ' + S.user + '!' : '!';
+  var h = '<div class="msg">' + bi(L('வணக்கம்' + (S.userTa ? ' ' + nameTa : nameTa) + 'மூன்று சிறு கேள்விகள். பேசலாம், அல்லது படத்தைத் தொடலாம்.', 'Hello' + nameEn + ' Three short questions. Speak, or tap a picture.')) + '</div>';
+  var qi = qIndex();
+  QUESTIONS.forEach(function(q, i){
+    if (i > qi) return;
+    var cur = i === qi;
+    h += '<div class="msg"><div class="qrow"><div>' + bi(q.q) + '</div><button class="iconbtn" data-act="say" data-q="' + i + '" aria-label="Read the question aloud">' + ic('speaker') + '</button></div></div>';
+    if (!cur) {
+      var o = q.opts.filter(function(x){ return x.id === S.answers[q.id]; })[0];
+      h += '<div class="msg me">' + bi(o.label) + '</div>';
+    } else {
+      h += '<div class="tiles">' + q.opts.map(function(o){ return '<button class="tile" data-act="ans" data-q="' + q.id + '" data-o="' + o.id + '">' + ic(o.icon) + '<span>' + bi(o.label) + '</span></button>'; }).join('') + '</div>';
+      h += '<div class="voice"><button class="mic ' + (S.listening ? 'live' : '') + '" data-act="mic" data-q="' + i + '" aria-label="Answer by voice">' + ic('mic') + '</button><span>' + bi(S.listening ? L('கேட்கிறேன்…','Listening…') : L('தமிழில் பேசு, அல்லது படத்தைத் தொடு','Speak in Tamil, or tap a picture')) + '</span></div>';
+    }
+  });
+  if (qi === QUESTIONS.length) {
+    h += '<div class="msg">' + bi(L('நன்றி! இப்போது சில விவரங்கள். இவை இந்த போனில் மட்டுமே இருக்கும்.','Thank you! Now a few details. They stay on this phone only.')) + '</div>' +
+      '<button class="btn" data-act="go" data-s="details">' + bi(L('தொடர்','Continue')) + '</button>';
+  } else if (S.who === 'kavya') {
+    h += '<button class="link" data-act="sample-answers">Use Kavya’s sample answers</button>';
+  }
+  return h;
+}
+var ROWS = [
+  { k:'gender', q:L('பாலினம்','Gender'), o:[['girl',L('பெண்','Girl')],['boy',L('ஆண்','Boy')],['third',L('மூன்றாம் பாலினம்','Third gender')]] },
+  { k:'cls', q:L('வகுப்பு','Class'), o:[[9,L('9','9')],[10,L('10','10')],[11,L('11','11')],[12,L('12','12')],[13,L('கல்லூரி / ITI முதல் ஆண்டு','College or ITI, year 1')]] },
+  { k:'school', q:L('பள்ளி','School'), o:[['govt',L('அரசு','Government')],['aided',L('அரசு உதவி பெறும்','Government-aided')],['private',L('தனியார்','Private')]] },
+  { k:'since6', q:L('6ஆம் வகுப்பு முதல் இதே வகைப் பள்ளியா?','Same kind of school since Class 6?'), o:[[true,L('ஆம்','Yes')],[false,L('இல்லை','No')]] },
+  { k:'medium', q:L('பயிற்று மொழி','Medium of study'), o:[['tamil',L('தமிழ்','Tamil')],['english',L('ஆங்கிலம்','English')]] },
+  { k:'community', q:L('சமூகம்','Community'), o:[['SC',L('SC','SC')],['ST',L('ST','ST')],['BC',L('BC','BC')],['MBC',L('MBC','MBC')],['DNC',L('DNC','DNC')],['OC',L('OC','OC')],['NA',L('சொல்ல விருப்பமில்லை','Prefer not to say')]] },
+  { k:'income', q:L('குடும்ப ஆண்டு வருமானம்','Family income a year'), o:[['lt1',L('₹1 லட்சத்துக்குள்','Under ₹1 lakh')],['1to2.5',L('₹1–2.5 லட்சம்','₹1–2.5 lakh')],['2.5to4.5',L('₹2.5–4.5 லட்சம்','₹2.5–4.5 lakh')],['4.5to8',L('₹4.5–8 லட்சம்','₹4.5–8 lakh')],['gt8',L('₹8 லட்சத்துக்கு மேல்','Over ₹8 lakh')],['unknown',L('தெரியாது','Not sure')]] },
+  { k:'firstGen', q:L('உன் குடும்பத்தில் முதல் பட்டதாரி நீதானா?','Will you be the first graduate in your family?'), o:[[true,L('ஆம்','Yes')],[false,L('இல்லை','No')],['unknown',L('தெரியாது','Not sure')]] },
+  { k:'top20', q:L('+2 மதிப்பெண் உன் வாரியத்தின் முதல் 20%-க்குள்?','Class 12 marks in your board’s top 20%?'), show:function(p){ return p.cls != null && p.cls >= 12; }, o:[[true,L('ஆம்','Yes')],[false,L('இல்லை','No')],['unknown',L('தெரியாது','Not sure')]] }
+];
+function scrDetails(){
+  var p = S.profile;
+  var h = '<h2 class="h">' + bi(L('உன்னைப் பற்றி சில விவரங்கள்','A few details about you')) + '</h2>' +
+    '<div class="banner">' + ic('lock') + '<div>' + bi(L('இவை இந்த போனில் மட்டுமே இருக்கும். ஆசிரியருக்கோ எங்கள் சர்வருக்கோ அனுப்பப்படாது.','These stay on this phone. They are never sent to your teacher or to our server.')) + '</div></div>';
+  ROWS.forEach(function(r){
+    if (r.show && !r.show(p)) return;
+    h += '<div class="field"><span class="label">' + bi(r.q) + '</span><div class="seg">' + r.o.map(function(o){
+      var on = p[r.k] === o[0];
+      return '<button data-act="set" data-k="' + r.k + '" data-v="' + esc(JSON.stringify(o[0])) + '" aria-pressed="' + on + '">' + bi(o[1]) + '</button>';
+    }).join('') + '</div></div>';
+  });
+  h += '<div class="field"><span class="label">' + bi(L('உன்னிடம் உள்ள ஆவணங்கள்','Documents you have')) + '</span><div class="seg">' + Object.keys(DOCS).map(function(d){
+    return '<button data-act="doc" data-d="' + d + '" aria-pressed="' + (p.docs[d] === true) + '">' + bi(DOCS[d].name) + '</button>';
+  }).join('') + '</div></div>';
+  h += '<div class="row">' + (S.who === 'kavya' ? '<button class="btn ghost" data-act="sample-profile">Fill Kavya’s sample details</button>' : '') +
+    '<button class="btn" data-act="go" data-s="skills">' + bi(L('தொடர்','Continue')) + '</button></div>';
+  return h;
+}
+function topSkills(){
+  var sk = skillsFrom(S.answers);
+  return Object.keys(sk).sort(function(a, b){ return sk[b] - sk[a]; }).slice(0, 3);
+}
+function scrSkills(){
+  if (qIndex() < QUESTIONS.length) return emptyState(L('முதலில் மூன்று கேள்விகளுக்குப் பதில் சொல்','Answer the three questions first'), 'discover');
+  var from = {};
+  QUESTIONS.forEach(function(q){ var o = q.opts.filter(function(x){ return x.id === S.answers[q.id]; })[0]; Object.keys(o.tags).forEach(function(k){ (from[k] = from[k] || []).push(o.label); }); });
+  return '<h2 class="h">' + bi(L('நீ ஏற்கனவே பயன்படுத்தும் திறன்கள்','Skills you already use')) + '</h2>' +
+    '<p class="note">' + bi(L('மதிப்பெண்களிலிருந்து அல்ல, உன் தினசரி வேலைகளிலிருந்து கண்டறியப்பட்டது.','Found from what you do every day, not from your marks.')) + '</p>' +
+    topSkills().map(function(k){ return '<div class="card"><span class="h3">' + bi(SKILL[k]) + '</span><p class="meta">' + bi(catL(L('இதிலிருந்து: ','From: '), joinL(from[k]))) + '</p></div>'; }).join('') +
+    '<div class="row"><button class="btn" data-act="go" data-s="paths">' + bi(L('ஆம், இது நான்','Yes, that’s me')) + '</button><button class="btn quiet" data-act="redo">' + bi(L('மீண்டும் பதில் சொல்','Answer again')) + '</button></div>';
+}
+function emptyState(msg, target){
+  return '<div class="card"><p class="why">' + bi(msg) + '</p><button class="btn" data-act="go" data-s="' + target + '">' + bi(L('அங்கே செல்','Go there')) + '</button></div>';
+}
+function scrPaths(){
+  if (qIndex() < QUESTIONS.length) return emptyState(L('முதலில் மூன்று கேள்விகளுக்குப் பதில் சொல்','Answer the three questions first'), 'discover');
+  var rec = recommend(S.answers, S.profile), sk = rec.skills;
+  var list = rec.picks.map(function(c){ return { c:c, wild:false }; });
+  if (rec.wild) list.push({ c:rec.wild, wild:true });
+  var h = '<h2 class="h">' + bi(L('உனக்கான பாதைகள்','Paths for you')) + '</h2>' +
+    '<p class="note">' + bi(L('3 பொருத்தமான பாதைகள், 1 வித்தியாசமான வாய்ப்பு. பாலினத்தைப் பார்த்துப் பாதைகள் தேர்வு செய்யப்படுவதில்லை.','3 good fits and 1 wildcard. Gender is never used to pick paths.')) + '</p>';
+  list.forEach(function(x){
+    var p = x.c.path, chosen = S.path === p.id;
+    var match = Object.keys(p.tags).filter(function(k){ return sk[k]; }).sort(function(a, b){ return p.tags[b] * sk[b] - p.tags[a] * sk[a]; }).slice(0, 2).map(function(k){ return SKILL[k]; });
+    h += '<article class="card' + (chosen ? ' chosen' : '') + '">' +
+      '<div class="row"><span class="chip ' + (x.wild ? 'wild' : 'ok') + '">' + bi(x.wild ? L('வித்தியாசமான வாய்ப்பு','Wildcard') : L('பொருத்தமானது','Good fit')) + '</span></div>' +
+      '<span class="h3">' + bi(p.name) + '</span><p class="meta">' + bi(p.route) + '</p>' +
+      (match.length ? '<p class="why">' + bi(catL(L('பொருந்துவது: ','Matches: '), joinL(match))) + '</p>' : '<p class="why">' + bi(L('நீ இன்னும் யோசிக்காத ஒரு வழி','A road you may not have thought about')) + '</p>') +
+      (S.story === p.id ? '<blockquote class="story">' + bi(p.story) + '<small>Illustrative story; real ones are recorded in Tamil in the pilot.</small></blockquote>' : '') +
+      '<div class="row"><button class="btn ghost" data-act="story" data-id="' + p.id + '">' + ic('play') + bi(L('கதை கேள்','Play story')) + '</button>' +
+      '<button class="btn" data-act="choose" data-id="' + p.id + '">' + bi(chosen ? L('தேர்ந்தெடுத்தது','Chosen') : L('இதைத் தேர்ந்தெடு','Choose this')) + '</button></div></article>';
+  });
+  return h;
+}
+function scrPlan(){
+  var path = currentPath();
+  if (!path) return emptyState(L('முதலில் ஒரு பாதையைத் தேர்ந்தெடு','Choose a path first'), 'paths');
+  var all = [].concat.apply([], S.plan), done = all.filter(function(t){ return S.done[t.id]; }).length;
+  var h = '<h2 class="h">' + bi(L('உன் 4 வாரத் திட்டம்','Your 4-week plan')) + '</h2><p class="note">' + bi(path.name) + '</p>';
+  nextDecision(path, S.profile).forEach(function(d){ h += '<div class="banner ochre">' + ic('calendar') + '<div>' + bi(d) + '</div></div>'; });
+  S.plan.forEach(function(week, w){
+    h += '<div class="week"><h4>' + bi(L('வாரம் ' + (w + 1), 'Week ' + (w + 1))) + '</h4>' + (week.length ? week.map(function(t){
+      var d = !!S.done[t.id];
+      return '<label class="task' + (d ? ' done' : '') + '"><input type="checkbox" data-act="task" data-id="' + t.id + '"' + (d ? ' checked' : '') + '><span>' + bi(t.text) + '</span></label>';
+    }).join('') : '<p class="note">' + bi(L('இந்த வாரம் எதுவும் இல்லை','Nothing left this week')) + '</p>') + '</div>';
+  });
+  h += '<div class="row between" style="align-items:center"><span class="note">' + done + '/' + all.length + ' ' + (S.lang === 'en' ? 'done' : 'முடிந்தது · done') + '</span>' +
+    '<button class="btn quiet" data-act="reroute">' + bi(L('ஒரு படி தவறியதா?','Missed a step?')) + '</button></div>';
+  return h;
+}
+var STATUS = {
+  yes:{ cls:'ok', label:L('இப்போது தகுதி','Eligible now') }, likely:{ cls:'ok', label:L('தகுதி இருக்கலாம்','Likely eligible') },
+  later:{ cls:'', label:L('பின்னர் தகுதி','Eligible later') }, 'if':{ cls:'', label:L('படிப்பைப் பொறுத்து','Depends on course') },
+  ask:{ cls:'warn', label:L('ஒரு பதில் தேவை','Needs an answer') }, no:{ cls:'no', label:L('பொருந்தாது','Not for you') }
+};
+function reasonOf(e){
+  var s = e.s;
+  if (e.status === 'no') {
+    if (e.timing === 'past') return L('9, 10ஆம் வகுப்புகளுக்கு மட்டும்','Only for Class 9 and 10');
+    var f = e.trace.filter(function(x){ return x.r === false; })[0];
+    return catL(L('தேவை: ','Requires: '), f.c.label);
+  }
+  if (e.status === 'ask') { var u = e.trace.filter(function(x){ return x.r === null; })[0]; return u ? catL(L('விவரங்கள் பக்கத்தில் பதில் சொல்: ','Answer on the details screen: '), u.c.label) : L('உன் வகுப்பைச் சொல்','Tell us your class'); }
+  if (e.status === 'if') { var pc = e.trace.filter(function(x){ return x.r === 'path'; })[0]; return catL(L('தகுதி: ','Eligible '), pc.c.ifText); }
+  var parts = [];
+  if (e.status === 'later') parts.push(s.when === '11+' ? L('11ஆம் வகுப்பு முதல்','From Class 11') : L('பட்டம், டிப்ளமோ அல்லது ITI-யில் சேரும்போது','When you join a degree, diploma or ITI'));
+  e.trace.forEach(function(x){ if (x.r === 'future' && x.c.future) parts.push(x.c.future); });
+  if (e.likely) parts.push(L('BC/MBC: உன் சமூகம் மத்திய OBC பட்டியலில் உள்ளதா என உறுதிசெய்','BC/MBC: confirm your community is on the central OBC list'));
+  if (!parts.length) parts.push(L('எல்லா நிபந்தனைகளும் பொருந்துகின்றன','All conditions met'));
+  return L(parts.map(function(x){ return x.ta; }).join(' · '), parts.map(function(x){ return x.en; }).join(' · '));
+}
+function schemeCard(e){
+  var st = STATUS[e.status], s = e.s, now = e.status === 'yes' || e.status === 'likely';
+  var miss = (now || e.status === 'later') && e.missing.length ? '<p class="missing">' + bi(catL(L('இல்லாத ஆவணம்: ','Missing: '), joinL(e.missing.map(function(d){ return DOCS[d].name; })))) + '</p>' : '';
+  return '<article class="card"><div class="row"><span class="chip ' + st.cls + '">' + bi(st.label) + '</span></div><span class="h3">' + bi(s.name) + '</span>' +
+    '<p class="benefit">' + bi(s.benefit) + '</p><p class="reason">' + bi(reasonOf(e)) + '</p>' + miss +
+    '<p class="src">' + esc(s.by) + ' · <a href="' + s.source.url + '" target="_blank" rel="noopener">' + esc(s.source.label) + '</a> · checked ' + CHECKED + '</p>' +
+    (now ? '<button class="btn" data-act="ready" data-id="' + s.id + '">' + bi(L('விண்ணப்பத்துக்குத் தயாராகு','Get ready to apply')) + '</button>' : '') + '</article>';
+}
+function scrSupport(){
+  var evals = evaluateAll(S.profile, currentPath());
+  var g = { now:[], later:[], ifp:[], ask:[], no:[] };
+  evals.forEach(function(e){ ({ yes:g.now, likely:g.now, later:g.later, 'if':g.ifp, ask:g.ask, no:g.no })[e.status].push(e); });
+  var h = '<h2 class="h">' + bi(L('உனக்குக் கிடைக்கும் உதவி','Support you can get')) + '</h2>' +
+    '<div class="banner">' + ic('shield') + '<div>' + bi(L('சோதிக்கப்பட்ட விதிகளால் இந்த போனிலேயே சரிபார்க்கப்பட்டது. இணையம் தேவையில்லை.','Checked on this phone by tested rules. No internet needed.')) + '</div></div>';
+  function sec(title, arr){ return arr.length ? '<p class="group-h">' + bi(title) + '</p>' + arr.map(schemeCard).join('') : ''; }
+  h += sec(L('இப்போது','Now'), g.now) + sec(L('பின்னர்','Later, if you stay on track'), g.later) + sec(L('நீ தேர்ந்தெடுக்கும் படிப்பைப் பொறுத்து','Depends on the course you choose'), g.ifp) + sec(L('ஒரு பதில் தேவை','Needs one more answer'), g.ask);
+  if (g.no.length) h += '<details class="group"><summary>' + bi(L('உனக்குப் பொருந்தாதவை (' + g.no.length + ')', 'Not for you (' + g.no.length + '), with the reason')) + '</summary>' + g.no.map(schemeCard).join('') + '</details>';
+  return h;
+}
+function sheetReady(id){
+  var s = SCHEME[id], e = evaluate(s, S.profile, currentPath());
+  return '<div class="sheet-bg" data-act="close-sheet"><div class="sheet" data-stop="1" role="dialog" aria-label="Get ready to apply">' +
+    '<span class="h3">' + bi(s.name) + '</span><p class="note">' + bi(L('விண்ணப்பப் பட்டியல் இந்த போனில் சேமிக்கப்பட்டது','Checklist saved on this phone')) + '</p>' +
+    s.docs.map(function(d){ var have = S.profile.docs[d] === true; return '<div class="doc"><div><b>' + bi(DOCS[d].name) + '</b>' + (have ? '' : '<span class="en">' + esc(DOCS[d].how.en) + '</span>') + '</div><span class="' + (have ? 'have' : 'need') + '">' + (have ? 'Have it' : 'Missing') + '</span></div>'; }).join('') +
+    '<div class="banner">' + ic('shield') + '<div>' + bi(L('இந்தத் திரையை உன் ஆசிரியர் அல்லது இ-சேவை பணியாளரிடம் காட்டு. அவர்கள் அதிகாரப்பூர்வ இணையதளத்தில் விண்ணப்பிப்பார்கள்.','Show this screen to your teacher or the e-Sevai operator. They submit it on the official portal.')) + '</div></div>' +
+    (e.likely ? '<p class="missing">' + bi(L('BC/MBC: உன் சமூகம் மத்திய OBC பட்டியலில் உள்ளதா என ஆசிரியரிடம் உறுதிசெய்','BC/MBC: check with your teacher that your community is on the central OBC list')) + '</p>' : '') +
+    '<button class="btn" data-act="close-sheet">' + bi(L('சரி','Done')) + '</button></div></div>';
+}
+function phNav(){
+  var tabs = [['discover','compass',L('கண்டறி','Discover')], ['paths','route',L('பாதைகள்','Paths')], ['plan','calendar',L('திட்டம்','Plan')], ['support','shield',L('உதவி','Support')]];
+  var group = { discover:'discover', details:'discover', skills:'discover', paths:'paths', plan:'plan', support:'support' }[S.screen];
+  return tabs.map(function(t){ return '<button data-act="go" data-s="' + t[0] + '"' + (group === t[0] ? ' aria-current="page"' : '') + '>' + ic(t[1]) + '<span class="ta">' + esc(t[2].ta) + '</span><span class="en">' + esc(t[2].en) + '</span></button>'; }).join('');
+}
+
+/* ---------------- side panel ---------------- */
+function liveRow(){
+  var path = currentPath(), evals = evaluateAll(S.profile, path), miss = relevantMissing(evals);
+  var all = S.plan ? [].concat.apply([], S.plan) : [], done = all.filter(function(t){ return S.done[t.id]; }).length;
+  var step = qIndex() < QUESTIONS.length ? 'Discover' : !path ? 'Choosing a path' : 'Plan ' + done + '/' + all.length;
+  var blk = !path ? 'nopath' : miss[0] || null;
+  return { id:'10B-07', name:(S.who === 'new' ? 'New student' : 'Kavya S'), path:path ? path.name.en : 'Not chosen', step:step, blocker:blk };
+}
+function panelTeacher(){
+  var live = liveRow();
+  var rows = CLASSMATES.map(function(r){ return { id:r[0], name:r[1], path:r[2] ? PATH[r[2]].name.en : 'Not chosen', step:!r[2] ? 'Discover' : r[3] >= 8 ? 'Plan done' : 'Plan ' + r[3] + '/8', blocker:r[4] }; });
+  var everyone = [live].concat(rows);
+  var chose = everyone.filter(function(r){ return r.path !== 'Not chosen'; }).length;
+  var finished = everyone.filter(function(r){ return r.step === 'Plan done'; }).length;
+  var help = everyone.filter(function(r){ return r.blocker; }).length;
+  var payload = syncPayload();
+  return '<h2>Teacher view</h2><p class="note">Class 10-B, a government higher secondary school (sample class of 25). Kavya’s row updates live from the phone.</p>' +
+    '<div class="figs"><div class="fig"><b>' + chose + '/25</b><span>chose a path</span></div><div class="fig"><b>' + finished + '</b><span>finished the 4-week plan</span></div><div class="fig warn"><b>' + help + '</b><span>need help</span></div></div>' +
+    '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Path</th><th>Progress</th><th>Blocker</th></tr></thead><tbody>' +
+    everyone.map(function(r, i){ return '<tr' + (i === 0 ? ' class="live"' : '') + '><td>' + esc(r.name) + (i === 0 ? '<span class="livetag"> (live)</span>' : '') + '</td><td>' + esc(r.path) + '</td><td>' + esc(r.step) + '</td><td class="' + (r.blocker ? 'blk' : '') + '">' + (r.blocker ? esc(BLOCKER[r.blocker]) : '–') + '</td></tr>'; }).join('') +
+    '</tbody></table></div>' +
+    '<div class="cols"><div class="stack"><p><b>What the phone sends to the teacher</b></p><pre>' + esc(JSON.stringify(payload, null, 2)) + '</pre></div>' +
+    '<div class="stack"><p><b>What never leaves the phone</b></p><p class="never">Community, family income, gender, the list of documents she holds, and her answers. Teachers see progress and the one blocker they can help with.</p></div></div>';
+}
+var MARK = { 'true':['yes','yes'], 'false':['no','no'], 'null':['ask','?'], likely:['likely','likely'], future:['later','later'], path:['if','if course'] };
+function panelRules(){
+  var path = currentPath(), evals = evaluateAll(S.profile, path);
+  return '<h2>How it decides</h2><p class="note">Every result comes from rules written as code, with a source and a check date. The language model explains results in Tamil; it never decides who is eligible. Showing Kavya’s current answers' + (path ? ' and her chosen path (' + esc(path.name.en) + ')' : '') + '.</p>' +
+    evals.map(function(e){
+      var st = STATUS[e.status];
+      return '<details class="scheme"><summary><span>' + esc(e.s.name.en) + '</span><span class="chip ' + st.cls + '">' + esc(st.label.en) + '</span></summary>' +
+        '<ul class="trace">' + e.trace.map(function(x){ var m = MARK[String(x.r)]; return '<li><span class="mark ' + m[0] + '">' + m[1] + '</span><span>' + esc(x.c.label.en) + ' <code>' + esc(x.c.code) + '</code></span></li>'; }).join('') +
+        '<li><span class="mark ' + (e.timing === 'past' ? 'no' : e.timing === 'now' ? 'yes' : e.timing ? 'later' : 'ask') + '">' + (e.timing || '?') + '</span><span>timing <code>applies: ' + esc(e.s.when) + '</code></span></li></ul>' +
+        '<p class="src">' + esc(e.s.source.label) + ' · checked ' + CHECKED + '</p></details>';
+    }).join('');
+}
+
+/* ---------------- checks (run in the browser) ---------------- */
+function P(o){ var b = blankProfile(); b.docs = { aadhaar:true, bank:true, income:true, community:true }; Object.keys(o).forEach(function(k){ b[k] = o[k]; }); return b; }
+var CASES = [
+  ['pudhumai','Girl, govt school since Class 6, joining college', P({gender:'girl', cls:13, school:'govt', since6:true}), null, 'yes'],
+  ['pudhumai','Girl in Class 10, govt school since Class 6', P({gender:'girl', cls:10, school:'govt', since6:true}), null, 'later'],
+  ['pudhumai','Boy, govt school, joining college', P({gender:'boy', cls:13, school:'govt', since6:true}), null, 'no'],
+  ['pudhumai','Girl from a private school', P({gender:'girl', cls:13, school:'private', since6:true}), null, 'no'],
+  ['pudhumai','Girl who joined govt school after Class 6', P({gender:'girl', cls:13, school:'govt', since6:false}), null, 'no'],
+  ['pudhumai','Girl from a govt-aided school (Dec 2024 extension)', P({gender:'girl', cls:13, school:'aided', since6:true}), null, 'yes'],
+  ['pudhumai','Third-gender student, govt school', P({gender:'third', cls:13, school:'govt', since6:true}), null, 'yes'],
+  ['pudhumai','Gender not answered', P({cls:13, school:'govt', since6:true}), null, 'ask'],
+  ['pudhalvan','Boy, govt school, Tamil medium, joining college', P({gender:'boy', cls:13, school:'govt', since6:true, medium:'tamil'}), null, 'yes'],
+  ['pudhalvan','Boy, govt-aided school, Tamil medium', P({gender:'boy', cls:13, school:'aided', since6:true, medium:'tamil'}), null, 'yes'],
+  ['pudhalvan','Boy, govt school, English medium', P({gender:'boy', cls:13, school:'govt', since6:true, medium:'english'}), null, 'no'],
+  ['pudhalvan','Girl, govt school, Tamil medium', P({gender:'girl', cls:13, school:'govt', since6:true, medium:'tamil'}), null, 'no'],
+  ['pudhalvan','Boy in Class 12, on track', P({gender:'boy', cls:12, school:'govt', since6:true, medium:'tamil'}), null, 'later'],
+  ['quota75','Govt school since Class 6, engineering', P({cls:13, school:'govt', since6:true}), 'engineering', 'yes'],
+  ['quota75','Govt-aided school, engineering', P({cls:13, school:'aided', since6:true}), 'engineering', 'no'],
+  ['quota75','Govt school, nursing diploma (not covered)', P({cls:13, school:'govt', since6:true}), 'nursing', 'no'],
+  ['quota75','Class 10, no course chosen yet', P({cls:10, school:'govt', since6:true}), null, 'if'],
+  ['firstgrad','First graduate, engineering via counselling', P({cls:13, firstGen:true}), 'engineering', 'yes'],
+  ['firstgrad','Not a first graduate', P({cls:13, firstGen:false}), 'engineering', 'no'],
+  ['firstgrad','First-graduate status not answered', P({cls:13}), 'engineering', 'ask'],
+  ['firstgrad','First graduate, B.Com (not covered)', P({cls:13, firstGen:true}), 'accounts', 'no'],
+  ['csss','Top 20%, income ₹2.5–4.5 lakh, regular degree', P({cls:13, top20:true, income:'2.5to4.5'}), 'accounts', 'yes'],
+  ['csss','Top 20%, income ₹4.5–8 lakh', P({cls:13, top20:true, income:'4.5to8'}), 'accounts', 'no'],
+  ['csss','Top 20%, diploma (diplomas excluded)', P({cls:13, top20:true, income:'1to2.5'}), 'labtech', 'no'],
+  ['csss','Not in top 20%', P({cls:13, top20:false, income:'lt1'}), 'accounts', 'no'],
+  ['csss','Class 10, degree path, income under ₹1 lakh', P({cls:10, income:'lt1'}), 'accounts', 'later'],
+  ['pragati','Girl, income ₹4.5–8 lakh, AICTE diploma', P({gender:'girl', cls:13, income:'4.5to8'}), 'civil', 'yes'],
+  ['pragati','Boy, AICTE diploma', P({gender:'boy', cls:13, income:'lt1'}), 'civil', 'no'],
+  ['pragati','Girl, income over ₹8 lakh', P({gender:'girl', cls:13, income:'gt8'}), 'civil', 'no'],
+  ['pragati','Girl, nursing (not an AICTE course)', P({gender:'girl', cls:13, income:'lt1'}), 'nursing', 'no'],
+  ['yasasvi_pre','MBC, Class 10, govt school, ₹1–2.5 lakh', P({cls:10, school:'govt', community:'MBC', income:'1to2.5'}), null, 'likely'],
+  ['yasasvi_pre','DNC, Class 9, govt school, under ₹1 lakh', P({cls:9, school:'govt', community:'DNC', income:'lt1'}), null, 'yes'],
+  ['yasasvi_pre','MBC, Class 10, private school', P({cls:10, school:'private', community:'MBC', income:'lt1'}), null, 'no'],
+  ['yasasvi_pre','MBC, Class 10, income ₹2.5–4.5 lakh', P({cls:10, school:'govt', community:'MBC', income:'2.5to4.5'}), null, 'no'],
+  ['yasasvi_pre','MBC, Class 11 (past Class 10)', P({cls:11, school:'govt', community:'MBC', income:'lt1'}), null, 'no'],
+  ['yasasvi_pre','OC student', P({cls:10, school:'govt', community:'OC', income:'lt1'}), null, 'no'],
+  ['yasasvi_post','BC, Class 11, under ₹1 lakh', P({cls:11, community:'BC', income:'lt1'}), null, 'likely'],
+  ['yasasvi_post','BC, Class 10 (from Class 11)', P({cls:10, community:'BC', income:'lt1'}), null, 'later'],
+  ['yasasvi_post','SC student (separate SC scheme)', P({cls:11, community:'SC', income:'lt1'}), null, 'no'],
+  ['sc_pre','SC, Class 9, ₹1–2.5 lakh', P({cls:9, community:'SC', income:'1to2.5'}), null, 'yes'],
+  ['sc_pre','SC, Class 10, income not known', P({cls:10, community:'SC', income:'unknown'}), null, 'ask'],
+  ['sc_pre','SC, Class 12 (past Class 10)', P({cls:12, community:'SC', income:'lt1'}), null, 'no'],
+  ['sc_post','SC, Class 12, ₹1–2.5 lakh', P({cls:12, community:'SC', income:'1to2.5'}), null, 'yes'],
+  ['sc_post','SC, college, income ₹2.5–4.5 lakh', P({cls:13, community:'SC', income:'2.5to4.5'}), null, 'no'],
+  ['st_post','ST, Class 11, under ₹1 lakh', P({cls:11, community:'ST', income:'lt1'}), null, 'yes'],
+  ['st_post','ST, Class 10 (from Class 11)', P({cls:10, community:'ST', income:'lt1'}), null, 'later'],
+  ['st_post','Community not shared', P({cls:11, community:'NA', income:'lt1'}), null, 'ask']
+];
+function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function pick(r, arr){ return arr[Math.floor(r() * arr.length)]; }
+function randomProfile(r){
+  return { gender:pick(r, ['girl','boy','third']), cls:pick(r, [9,10,11,12,13]), school:pick(r, ['govt','aided','private']), since6:r() < 0.7, medium:pick(r, ['tamil','english']),
+    community:pick(r, ['SC','ST','BC','MBC','DNC','OC','NA']), income:pick(r, ['lt1','1to2.5','2.5to4.5','4.5to8','gt8','unknown']), firstGen:pick(r, [true,false,'unknown']), top20:pick(r, [true,false,null]),
+    docs:{ aadhaar:r() < 0.9, bank:r() < 0.6, income:r() < 0.5, community:r() < 0.6 } };
+}
+function randomAnswers(r){ var a = {}; QUESTIONS.forEach(function(q){ a[q.id] = pick(r, q.opts).id; }); return a; }
+function runChecks(){
+  var results = CASES.map(function(c){ var got = evaluate(SCHEME[c[0]], c[2], c[3] ? PATH[c[3]] : null).status; return { scheme:SCHEME[c[0]].name.en, name:c[1], expect:c[4], got:got, pass:got === c[4] }; });
+  var passed = results.filter(function(x){ return x.pass; }).length;
+  var r = rng(2026), N = 1000, changed = 0;
+  for (var i = 0; i < N; i++) {
+    var a = randomAnswers(r), p1 = randomProfile(r), p2 = clone(p1);
+    p2.gender = p1.gender === 'girl' ? 'boy' : 'girl';
+    var ids = function(rec){ return rec.picks.map(function(c){ return c.path.id; }).concat(rec.wild ? [rec.wild.path.id] : []).join(','); };
+    if (ids(recommend(a, p1)) !== ids(recommend(a, p2))) changed++;
+  }
+  var r2 = rng(7), M = 10000, profiles = [];
+  for (var j = 0; j < M; j++) profiles.push([randomProfile(r2), pick(r2, PATHS.concat([null]))]);
+  var t0 = performance.now();
+  for (var k = 0; k < M; k++) evaluateAll(profiles[k][0], profiles[k][1]);
+  var ms = performance.now() - t0;
+  var before = NET.calls;
+  var flow = recommend(KAVYA.answers, KAVYA.profile), chosen = flow.picks[0].path, ev = evaluateAll(KAVYA.profile, chosen);
+  makePlan(chosen, KAVYA.profile, ev); relevantMissing(ev); evaluateAll(KAVYA.profile, null);
+  var calls = NET.calls - before;
+  var kb = Math.round(new Blob([document.documentElement.outerHTML]).size / 1024);
+  S.tests = { results:results, passed:passed, total:results.length, N:N, changed:changed, M:M, ms:ms, perMs:ms / M, calls:calls, kb:kb, schemes:SCHEMES.length, paths:PATHS.length, rules:SCHEMES.reduce(function(a, s){ return a + s.checks.length; }, 0) };
+  window.OPENPATH_CHECKS = { passed:passed, total:results.length, genderSwapChanged:changed, genderSwapN:N, evalMsTotal:+ms.toFixed(1), evalProfiles:M, networkCallsInFlow:calls, pageKB:kb, schemes:SCHEMES.length, paths:PATHS.length, ruleChecks:S.tests.rules };
+}
+function panelChecks(){
+  if (!S.tests) runChecks();
+  var t = S.tests;
+  return '<h2>Checks</h2><p class="note">These run in your browser each time the page opens. Nothing here is typed in by hand.</p><div class="checks">' +
+    '<div class="check"><span class="big ' + (t.passed === t.total ? '' : 'bad') + '">' + t.passed + '/' + t.total + '</span><p>rule tests pass. Each case was written from the scheme criteria in the linked sources.</p><small>' + t.schemes + ' schemes, ' + t.rules + ' rule checks, each with a source and check date.</small></div>' +
+    '<div class="check"><span class="big ' + (t.changed ? 'bad' : '') + '">' + t.changed + '</span><p>of ' + t.N.toLocaleString('en-IN') + ' random students got different paths when only their gender was flipped.</p><small>Path matching never reads gender. This test fails if anyone adds it.</small></div>' +
+    '<div class="check"><span class="big">' + (t.ms < 1000 ? Math.round(t.ms) + ' ms' : (t.ms / 1000).toFixed(1) + ' s') + '</span><p>to check all ' + t.schemes + ' schemes for ' + t.M.toLocaleString('en-IN') + ' random students on this device.</p><small>About ' + (t.perMs * 1000).toFixed(0) + ' microseconds per student, with no server.</small></div>' +
+    '<div class="check"><span class="big">' + t.calls + '</span><p>network calls during a full student flow: discover, paths, plan and eligibility.</p><small>Go offline in DevTools and use the phone on the left: it keeps working.</small></div>' +
+    '<div class="check"><span class="big">' + t.kb + ' KB</span><p>for the whole prototype: rules, ' + t.paths + ' paths, both languages and these tests.</p><small>Small enough to share phone to phone.</small></div>' +
+    '</div><button class="btn quiet" data-act="rerun">Run the checks again</button>' +
+    '<details class="group"><summary>See all ' + t.total + ' rule tests</summary><div class="tbl-wrap cases"><table><thead><tr><th>Scheme</th><th>Case</th><th>Expected</th><th>Got</th><th></th></tr></thead><tbody>' +
+    t.results.map(function(x){ return '<tr><td>' + esc(x.scheme) + '</td><td>' + esc(x.name) + '</td><td>' + x.expect + '</td><td>' + x.got + '</td><td class="' + (x.pass ? 'pass' : 'fail') + '">' + (x.pass ? 'pass' : 'FAIL') + '</td></tr>'; }).join('') +
+    '</tbody></table></div></details>';
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  document.getElementById('root').classList.toggle('lang-en', S.lang === 'en');
+  document.getElementById('phTop').innerHTML = phTop();
+  var body = { lock:scrLock, discover:scrDiscover, details:scrDetails, skills:scrSkills, paths:scrPaths, plan:scrPlan, support:scrSupport }[S.screen]();
+  var b = document.getElementById('phBody'); b.innerHTML = body;
+  if (S.screen === 'discover') b.scrollTop = b.scrollHeight;
+  var nav = document.getElementById('phNav'); nav.hidden = S.screen === 'lock'; nav.innerHTML = S.screen === 'lock' ? '' : phNav();
+  document.getElementById('sheet').innerHTML = S.sheet ? sheetReady(S.sheet) : '';
+  var tabs = [['teacher','Teacher view'], ['rules','How it decides'], ['checks','Checks']];
+  document.getElementById('tabs').innerHTML = tabs.map(function(t){ return '<button role="tab" data-act="panel" data-id="' + t[0] + '" aria-selected="' + (S.panel === t[0]) + '">' + t[1] + '</button>'; }).join('');
+  document.getElementById('pbody').innerHTML = { teacher:panelTeacher, rules:panelRules, checks:panelChecks }[S.panel]();
+}
+var lastScreen = null;
+function go(screen){ S.screen = screen; render(); var b = document.getElementById('phBody'); if (screen !== 'discover') b.scrollTop = 0; }
+
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest('[data-act]'); if (!el) return;
+  if (el.dataset.act === 'close-sheet' && ev.target.closest('[data-stop]') && !ev.target.closest('button')) return;
+  var a = el.dataset.act;
+  if (a === 'who') {
+    if (el.dataset.id === 'new') { S.who = 'new'; S.user = 'New student'; S.userTa = null; S.answers = {}; S.profile = blankProfile(); S.path = null; S.plan = null; go('discover'); return; }
+    S.who = el.dataset.id; S.pin = []; S.pinMsg = null; render(); return;
+  }
+  if (a === 'who-back') { S.who = null; S.pin = []; S.pinMsg = null; render(); return; }
+  if (a === 'pin') {
+    S.pin.push(el.dataset.id); S.pinMsg = null;
+    if (S.pin.length === 3) {
+      var ok = PIN_CODE[S.who] && PIN_CODE[S.who].join() === S.pin.join();
+      if (!ok) { S.pin = []; S.pinMsg = L('சரியில்லை. மீண்டும் முயற்சி செய்.','Not quite. Try again.'); render(); return; }
+      if (S.who === 'anbu') { S.who = null; S.pin = []; render(); toast('Anbu’s profile opened. Kavya’s answers stay hidden from him. For this demo, use Kavya.'); return; }
+      S.user = 'Kavya'; S.userTa = 'காவ்யா'; S.answers = {}; S.profile = blankProfile(); S.path = null; S.plan = null; S.done = {}; S.pin = [];
+      go('discover'); return;
+    }
+    render(); return;
+  }
+  if (a === 'lock') { S.screen = 'lock'; S.who = null; S.pin = []; render(); return; }
+  if (a === 'lang') { S.lang = S.lang === 'en' ? 'bi' : 'en'; render(); return; }
+  if (a === 'ans') { answer(el.dataset.q, el.dataset.o); return; }
+  if (a === 'say') { speak(QUESTIONS[+el.dataset.q].q); return; }
+  if (a === 'mic') { listen(+el.dataset.q); return; }
+  if (a === 'sample-answers') { S.answers = clone(KAVYA.answers); render(); return; }
+  if (a === 'sample-profile') { S.profile = clone(KAVYA.profile); render(); return; }
+  if (a === 'set') {
+    var v = JSON.parse(el.dataset.v), k = el.dataset.k;
+    S.profile[k] = S.profile[k] === v ? null : v;
+    if (S.path) S.plan = makePlan(currentPath(), S.profile, evaluateAll(S.profile, currentPath()));
+    render(); return;
+  }
+  if (a === 'doc') { var d = el.dataset.d; S.profile.docs[d] = S.profile.docs[d] === true ? false : true; render(); return; }
+  if (a === 'go') { go(el.dataset.s); return; }
+  if (a === 'redo') { S.answers = {}; go('discover'); return; }
+  if (a === 'story') { var id = el.dataset.id; S.story = S.story === id ? null : id; render(); if (S.story) speak(PATH[id].story); return; }
+  if (a === 'choose') { choosePath(el.dataset.id); return; }
+  if (a === 'reroute') { reroute(); return; }
+  if (a === 'ready') { S.sheet = el.dataset.id; render(); return; }
+  if (a === 'close-sheet') { S.sheet = null; render(); return; }
+  if (a === 'panel') { S.panel = el.dataset.id; render(); return; }
+  if (a === 'rerun') { runChecks(); render(); toast('Checks ran again.'); return; }
+  if (a === 'reset') { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} S = freshState(); render(); toast('Demo reset.'); return; }
+});
+document.addEventListener('change', function(ev){
+  var el = ev.target; if (el.dataset && el.dataset.act === 'task') { S.done[el.dataset.id] = el.checked; render(); }
+});
+window.addEventListener('online', render);
+window.addEventListener('offline', render);
+try { if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = function(){}; } catch (e) {}
+runChecks();
+render();
+window.OPENPATH = { S:function(){ return S; }, evaluate:evaluate, evaluateAll:evaluateAll, recommend:recommend, SCHEMES:SCHEMES, PATHS:PATHS };
+})();
+</script>

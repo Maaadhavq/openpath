@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OpenPath</title>
+<meta name="description" content="A voice-first career and scheme guide for students in Tamil Nadu. Works offline.">
+<meta name="theme-color" content="#1e6b52">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="stylesheet" href="/app.css">
+<script>
+/* Network counter: installed before any other script, so the Checks tab can prove the student flow makes no network calls. */
+window.NET = { calls: 0 };
+(function(){
+  if (window.fetch) { var f = window.fetch; window.fetch = function(){ window.NET.calls++; return f.apply(this, arguments); }; }
+  if (window.XMLHttpRequest) { var o = XMLHttpRequest.prototype.open; XMLHttpRequest.prototype.open = function(){ window.NET.calls++; return o.apply(this, arguments); }; }
+})();
+</script>
+<script type="module" src="/js/ui.js"></script>
+</head>
+<body>
+<div class="wrap" id="root">
+  <header class="topbar">
+    <div>
+      <h1>OpenPath</h1>
+      <p>Team 5fire, VIT Chennai. The scheme rules, paths, plan and checks run on the phone, offline. Voice and sync use our server. Student data is sample data.</p>
+    </div>
+    <div class="actions">
+      <button class="btn quiet" data-act="reset">Reset demo</button>
+    </div>
+  </header>
+  <div class="stage">
+    <section aria-label="Student app">
+      <div class="phone" id="phone">
+        <div class="ph-top" id="phTop"></div>
+        <div class="ph-body" id="phBody"><p class="note">Loading…</p></div>
+        <nav class="ph-nav" id="phNav" aria-label="App sections" hidden></nav>
+        <div id="sheet"></div>
+      </div>
+    </section>
+    <section class="panel" aria-label="How it decides and checks">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="pbody" id="pbody"></div>
+    </section>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<audio id="clip" preload="none"></audio>
+</body>
+</html>

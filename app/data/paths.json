@@ -1,0 +1,492 @@
+[
+  {
+    "id": "nursing",
+    "name": {
+      "ta": "செவிலியர்",
+      "en": "Nurse"
+    },
+    "route": {
+      "ta": "செவிலியர் டிப்ளமோ (DGNM) · 3 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "Nursing diploma (DGNM) · 3 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "diploma",
+    "tech": false,
+    "prof": false,
+    "usual": true,
+    "tags": {
+      "care": 3,
+      "science": 2,
+      "people": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": {
+      "ta": "உயிரியல்",
+      "en": "Biology"
+    },
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள ஆரம்ப சுகாதார நிலையத்துக்குச் செல்",
+      "en": "Visit the nearest Primary Health Centre with your teacher"
+    },
+    "story": {
+      "ta": "எங்கள் ஊரில் முதல் செவிலியர் நான். இரவுப் பணியிலும் மக்களுக்கு உதவுவது எனக்குப் பிடிக்கும்.",
+      "en": "I am the first nurse from our village. I like helping people, even on night shifts."
+    }
+  },
+  {
+    "id": "labtech",
+    "name": {
+      "ta": "ஆய்வக தொழில்நுட்பர்",
+      "en": "Lab technician"
+    },
+    "route": {
+      "ta": "DMLT டிப்ளமோ · 2 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "DMLT diploma · 2 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "diploma",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "science": 3,
+      "care": 1,
+      "numbers": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": {
+      "ta": "உயிரியல்",
+      "en": "Biology"
+    },
+    "visit": {
+      "ta": "ஆசிரியருடன் அரசு மருத்துவமனை ஆய்வகத்தைப் பார்வையிடு",
+      "en": "Visit a government hospital lab with your teacher"
+    },
+    "story": {
+      "ta": "நான் பரமக்குடியில் +2 முடித்து DMLT படித்தேன். இப்போது அரசு மருத்துவமனை ஆய்வகத்தில் வேலை செய்கிறேன்.",
+      "en": "I finished Class 12 in Paramakudi and did a DMLT. Now I work in a government hospital lab."
+    }
+  },
+  {
+    "id": "solar",
+    "name": {
+      "ta": "சூரிய மின் தொழில்நுட்பர்",
+      "en": "Solar technician"
+    },
+    "route": {
+      "ta": "ITI எலக்ட்ரீஷியன் · 2 ஆண்டுகள் · 10-க்குப் பின்",
+      "en": "ITI Electrician · 2 years · after Class 10"
+    },
+    "after": 10,
+    "kind": "iti",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "electrical": 3,
+      "outdoors": 1,
+      "mechanical": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": null,
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்",
+      "en": "Visit the nearest Government ITI with your teacher"
+    },
+    "story": {
+      "ta": "ITI முடித்ததும் சோலார் நிறுவனத்தில் பயிற்சி பெற்றேன். இப்போது கூரைகளில் சோலார் பேனல்கள் பொருத்துகிறேன்.",
+      "en": "After ITI I did an apprenticeship with a solar company. Now I install panels on rooftops."
+    }
+  },
+  {
+    "id": "bike",
+    "name": {
+      "ta": "வாகன மெக்கானிக்",
+      "en": "Two-wheeler mechanic"
+    },
+    "route": {
+      "ta": "ITI மோட்டார் வாகன மெக்கானிக் · 2 ஆண்டுகள் · 10-க்குப் பின்",
+      "en": "ITI Mechanic Motor Vehicle · 2 years · after Class 10"
+    },
+    "after": 10,
+    "kind": "iti",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "mechanical": 3,
+      "electrical": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": null,
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்",
+      "en": "Visit the nearest Government ITI with your teacher"
+    },
+    "story": {
+      "ta": "அப்பாவின் வண்டியைச் சரிசெய்துதான் தொடங்கினேன். இப்போது சொந்தமாக ஒரு பட்டறை வைத்திருக்கிறேன்.",
+      "en": "I started by fixing my father’s bike. Now I run my own workshop."
+    }
+  },
+  {
+    "id": "accounts",
+    "name": {
+      "ta": "கணக்கு உதவியாளர்",
+      "en": "Accounts assistant"
+    },
+    "route": {
+      "ta": "B.Com · 3 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "B.Com · 3 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "degree",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "numbers": 3,
+      "computers": 1,
+      "people": 1
+    },
+    "subject": {
+      "ta": "கணிதம்",
+      "en": "maths"
+    },
+    "group": {
+      "ta": "வணிகவியல்",
+      "en": "Commerce"
+    },
+    "visit": {
+      "ta": "ஒரு ஆடிட்டர் அலுவலகம் அல்லது வங்கிக் கிளைக்குச் சென்று பார்",
+      "en": "Visit an auditor’s office or a bank branch"
+    },
+    "story": {
+      "ta": "கடையில் கணக்கு எழுதியது தான் என் முதல் பயிற்சி. இப்போது ஒரு நிறுவனத்தில் GST கணக்குகளைப் பார்க்கிறேன்.",
+      "en": "Writing the shop’s accounts was my first training. Now I handle GST accounts for a company."
+    }
+  },
+  {
+    "id": "mobile",
+    "name": {
+      "ta": "மொபைல் பழுதுநீக்கும் தொழில்நுட்பர்",
+      "en": "Mobile repair technician"
+    },
+    "route": {
+      "ta": "ITI எலக்ட்ரானிக்ஸ் மெக்கானிக் · 2 ஆண்டுகள் · 10-க்குப் பின்",
+      "en": "ITI Electronics Mechanic · 2 years · after Class 10"
+    },
+    "after": 10,
+    "kind": "iti",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "electrical": 2,
+      "mechanical": 1,
+      "computers": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": null,
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு ITI-க்குச் செல்",
+      "en": "Visit the nearest Government ITI with your teacher"
+    },
+    "story": {
+      "ta": "பள்ளியில் படிக்கும்போதே போன்களைத் திறந்து பார்ப்பேன். இப்போது ஒரு சர்வீஸ் சென்டரில் வேலை செய்கிறேன்.",
+      "en": "I used to open up phones while still in school. Now I work at a service centre."
+    }
+  },
+  {
+    "id": "agri",
+    "name": {
+      "ta": "வேளாண் கள உதவியாளர்",
+      "en": "Agriculture field assistant"
+    },
+    "route": {
+      "ta": "வேளாண்மை டிப்ளமோ · 2 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "Diploma in Agriculture · 2 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "diploma",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "outdoors": 3,
+      "science": 2
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": {
+      "ta": "உயிரியல்",
+      "en": "Biology"
+    },
+    "visit": {
+      "ta": "அருகிலுள்ள வேளாண் அறிவியல் மையத்துக்குச் செல்",
+      "en": "Visit the nearest Krishi Vigyan Kendra"
+    },
+    "story": {
+      "ta": "வேளாண் டிப்ளமோ முடித்து விவசாயிகளுக்கு மண் பரிசோதனை செய்ய உதவுகிறேன்.",
+      "en": "After my agriculture diploma, I help farmers test their soil."
+    }
+  },
+  {
+    "id": "garment",
+    "name": {
+      "ta": "ஆடை வடிவமைப்பாளர்",
+      "en": "Garment designer"
+    },
+    "route": {
+      "ta": "ஆடை தொழில்நுட்ப டிப்ளமோ · 3 ஆண்டுகள் · 10-க்குப் பின்",
+      "en": "Diploma in Garment Technology · 3 years · after Class 10"
+    },
+    "after": 10,
+    "kind": "diploma",
+    "tech": true,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "craft": 3,
+      "numbers": 1
+    },
+    "subject": {
+      "ta": "கணிதம்",
+      "en": "maths"
+    },
+    "group": null,
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு பாலிடெக்னிக்குக்குச் செல்",
+      "en": "Visit the nearest Government Polytechnic with your teacher"
+    },
+    "story": {
+      "ta": "அம்மாவிடம் தையல் கற்றேன். டிப்ளமோ முடித்து திருப்பூரில் ஆடை வடிவமைக்கிறேன்.",
+      "en": "I learned tailoring from my mother. After the diploma, I design clothes in Tiruppur."
+    }
+  },
+  {
+    "id": "teacher",
+    "name": {
+      "ta": "ஆசிரியர்",
+      "en": "Teacher"
+    },
+    "route": {
+      "ta": "D.El.Ed · 2 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "D.El.Ed · 2 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "diploma",
+    "tech": false,
+    "prof": false,
+    "usual": true,
+    "tags": {
+      "people": 3,
+      "care": 2
+    },
+    "subject": {
+      "ta": "தமிழ்",
+      "en": "Tamil"
+    },
+    "group": {
+      "ta": "எந்தப் பிரிவும்",
+      "en": "any"
+    },
+    "visit": {
+      "ta": "ஒரு தொடக்கப் பள்ளி வகுப்பில் ஒரு நாள் உதவி செய்",
+      "en": "Help out for a day in a primary school class"
+    },
+    "story": {
+      "ta": "என் ஆசிரியரைப் பார்த்துத்தான் ஆசிரியர் ஆனேன். இப்போது அதே பள்ளியில் பாடம் நடத்துகிறேன்.",
+      "en": "My teacher inspired me. Now I teach at the same school."
+    }
+  },
+  {
+    "id": "civil",
+    "name": {
+      "ta": "சிவில் பொறியியல் டிப்ளமோ",
+      "en": "Civil engineering diploma"
+    },
+    "route": {
+      "ta": "பாலிடெக்னிக் · 3 ஆண்டுகள் · 10-க்குப் பின்",
+      "en": "Polytechnic · 3 years · after Class 10"
+    },
+    "after": 10,
+    "kind": "diploma",
+    "tech": true,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "mechanical": 2,
+      "numbers": 2,
+      "outdoors": 1
+    },
+    "subject": {
+      "ta": "கணிதம்",
+      "en": "maths"
+    },
+    "group": null,
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு பாலிடெக்னிக்குக்குச் செல்",
+      "en": "Visit the nearest Government Polytechnic with your teacher"
+    },
+    "story": {
+      "ta": "பாலிடெக்னிக் முடித்து சாலை கட்டுமானத் திட்டத்தில் தள மேற்பார்வையாளராக இருக்கிறேன்.",
+      "en": "After polytechnic, I am a site supervisor on a road project."
+    }
+  },
+  {
+    "id": "copa",
+    "name": {
+      "ta": "கணினி இயக்குநர்",
+      "en": "Computer operator"
+    },
+    "route": {
+      "ta": "ITI COPA · 1 ஆண்டு · 10-க்குப் பின்",
+      "en": "ITI COPA · 1 year · after Class 10"
+    },
+    "after": 10,
+    "kind": "iti",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "computers": 3,
+      "numbers": 1
+    },
+    "subject": {
+      "ta": "கணிதம்",
+      "en": "maths"
+    },
+    "group": null,
+    "visit": {
+      "ta": "அருகிலுள்ள இ-சேவை மையத்தில் ஒரு மணி நேரம் பார்",
+      "en": "Spend an hour watching how an e-Sevai centre works"
+    },
+    "story": {
+      "ta": "ஒரு ஆண்டு COPA படித்தேன். இப்போது இ-சேவை மையத்தில் வேலை செய்கிறேன்.",
+      "en": "I did a one-year COPA course. Now I work at an e-Sevai centre."
+    }
+  },
+  {
+    "id": "pharma",
+    "name": {
+      "ta": "மருந்தாளுநர்",
+      "en": "Pharmacist"
+    },
+    "route": {
+      "ta": "D.Pharm · 2 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "D.Pharm · 2 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "diploma",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "science": 3,
+      "care": 1
+    },
+    "subject": {
+      "ta": "அறிவியல்",
+      "en": "science"
+    },
+    "group": {
+      "ta": "உயிரியல்",
+      "en": "Biology"
+    },
+    "visit": {
+      "ta": "அருகிலுள்ள அரசு மருத்துவமனை மருந்தகத்துக்குச் செல்",
+      "en": "Visit a government hospital pharmacy"
+    },
+    "story": {
+      "ta": "D.Pharm முடித்து எங்கள் ஊரிலேயே மருந்தகத்தில் வேலை செய்கிறேன்.",
+      "en": "After D.Pharm, I work at a pharmacy in my own town."
+    }
+  },
+  {
+    "id": "engineering",
+    "name": {
+      "ta": "பொறியாளர் (B.E.)",
+      "en": "Engineer (B.E.)"
+    },
+    "route": {
+      "ta": "B.E./B.Tech · 4 ஆண்டுகள் · +2-க்குப் பின்",
+      "en": "B.E./B.Tech · 4 years · after Class 12"
+    },
+    "after": 12,
+    "kind": "degree",
+    "tech": true,
+    "prof": true,
+    "usual": true,
+    "tags": {
+      "numbers": 2,
+      "science": 2,
+      "computers": 1
+    },
+    "subject": {
+      "ta": "கணிதம்",
+      "en": "maths"
+    },
+    "group": {
+      "ta": "கணிதம்-அறிவியல்",
+      "en": "Maths-Science"
+    },
+    "visit": {
+      "ta": "ஆசிரியருடன் அருகிலுள்ள அரசு பொறியியல் கல்லூரிக்குச் செல்",
+      "en": "Visit the nearest government engineering college with your teacher"
+    },
+    "story": {
+      "ta": "குடும்பத்தில் முதல் பட்டதாரி நான். 7.5% ஒதுக்கீட்டில் பொறியியல் படித்தேன்.",
+      "en": "I am the first graduate in my family. I studied engineering through the 7.5% quota."
+    }
+  },
+  {
+    "id": "graphic",
+    "name": {
+      "ta": "கிராஃபிக் வடிவமைப்பாளர்",
+      "en": "Graphic designer"
+    },
+    "route": {
+      "ta": "சான்றிதழ் படிப்பு · 1 ஆண்டு · 10-க்குப் பின்",
+      "en": "Certificate course · 1 year · after Class 10"
+    },
+    "after": 10,
+    "kind": "iti",
+    "tech": false,
+    "prof": false,
+    "usual": false,
+    "tags": {
+      "craft": 2,
+      "computers": 2
+    },
+    "subject": {
+      "ta": "கணினி",
+      "en": "computers"
+    },
+    "group": null,
+    "visit": {
+      "ta": "அருகிலுள்ள அச்சகம் அல்லது விளம்பரக் கடைக்குச் செல்",
+      "en": "Visit a local print shop or sign maker"
+    },
+    "story": {
+      "ta": "கோலம் போடுவது எனக்குப் பிடிக்கும். இப்போது கடைகளுக்கு விளம்பரங்கள் வடிவமைக்கிறேன்.",
+      "en": "I love drawing kolams. Now I design posters for shops."
+    }
+  }
+]

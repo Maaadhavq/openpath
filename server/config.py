@@ -32,6 +32,7 @@ class Settings:
     fake_sarvam: bool = False
     stt_model: str = "saaras:v4"
     stt_mode: str = "transcribe"
+    stt_keyterms: bool = False
     llm_model: str = "sarvam-105b"
     tts_model: str = "bulbul:v4-flash"
     tts_speaker: str = ""
@@ -50,6 +51,7 @@ def load_settings() -> Settings:
         fake_sarvam=env("FAKE_SARVAM", "0").strip() in ("1", "true", "yes"),
         stt_model=env("STT_MODEL", "saaras:v4"),
         stt_mode=env("STT_MODE", "transcribe"),
+        stt_keyterms=env("STT_KEYTERMS", "0").strip() in ("1", "true", "yes"),
         llm_model=env("LLM_MODEL", "sarvam-105b"),
         tts_model=env("TTS_MODEL", "bulbul:v4-flash"),
         tts_speaker=env("TTS_SPEAKER", ""),

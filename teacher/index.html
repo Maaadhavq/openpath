@@ -4,8 +4,42 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenPath teacher view</title>
+<meta name="description" content="Class 10-B progress, live from the students' phones. No community, income or gender.">
+<link rel="icon" href="/icons/icon-192.png" type="image/png">
+<link rel="stylesheet" href="teacher.css">
+<script src="teacher.js" defer></script>
 </head>
 <body>
-<p>The live teacher dashboard is built in Phase 4.</p>
+<main class="wrap">
+  <header class="head">
+    <div>
+      <h1>Class 10-B <span class="ta">வகுப்பு 10-B</span></h1>
+      <p class="note" id="school">Government Higher Secondary School (sample) · progress and blockers, live from the phones</p>
+    </div>
+    <div class="actions">
+      <span class="note" id="updated" aria-live="polite">Connecting…</span>
+      <button class="btn quiet" id="reset" type="button">Reset demo</button>
+    </div>
+  </header>
+  <p class="notice" id="notice" hidden></p>
+  <section class="figs" id="figs" aria-label="Summary"></section>
+  <p class="help" id="help"></p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Path <span class="ta">பாதை</span></th><th>Progress</th><th>Blocker</th><th>Updated</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <section class="cols">
+    <details class="box" id="sent" open>
+      <summary>What the phone sent</summary>
+      <pre id="lastEvent">Nothing yet.</pre>
+    </details>
+    <div class="box">
+      <p class="box-h">What never leaves the phone</p>
+      <p class="never">Community, family income, gender, the documents she holds, her answers, and her voice recording. Her voice answer is sent only to be turned into text, and is not stored. Teachers see progress and the one blocker they can help with.</p>
+    </div>
+  </section>
+</main>
 </body>
 </html>

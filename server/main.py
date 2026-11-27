@@ -17,6 +17,8 @@ from starlette.formparsers import MultiPartParser
 
 from . import talk
 from .config import APP_DIR, TEACHER_DIR, VERSION, Settings, load_settings
+from .schemas import SyncBody
+from .store import ClassStore
 
 # Windows can map .js to text/plain, which breaks module scripts. Set the types we serve explicitly.
 for ext, mime in {".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json",
@@ -75,6 +77,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="OpenPath", version=VERSION, docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.settings = settings
     limiter = RateLimiter(settings.talk_per_minute)
+    store = ClassStore()
+    app.state.store = store
 
     def passcode_ok(request: Request) -> bool:
         given = request.headers.get("x-demo-passcode", "")
@@ -143,6 +147,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if request.headers.get("x-debug") == "1":
             res["usage"] = {"audio_seconds": round(seconds, 2), "llm": usage, "llm_error": llm_error}
         return res
+
+    @app.post("/api/sync")
+    async def api_sync(body: SyncBody):
+        unknown = sorted({e.student for e in body.events if not store.knows(e.student)})
+        if unknown:
+            return error(422, "unknown_student", students=unknown)
+        accepted, duplicates = store.apply(body.events)
+        log.info("sync accepted=%d duplicates=%d", len(accepted), len(duplicates))
+        return {"accepted": accepted, "duplicates": duplicates}
+
+    @app.get("/api/class")
+    async def api_class():
+        return JSONResponse(store.snapshot(), headers={"Cache-Control": "no-store"})
+
+    @app.post("/api/reset")
+    async def api_reset(request: Request):
+        if not passcode_ok(request):
+            return error(401, "bad_passcode")
+        store.reset()
+        log.info("reset: class store re-seeded")
+        return {"ok": True}
 
     app.mount("/teacher", StaticFiles(directory=TEACHER_DIR, html=True), name="teacher")
     app.mount("/", StaticFiles(directory=APP_DIR, html=True), name="app")

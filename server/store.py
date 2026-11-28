@@ -56,7 +56,7 @@ class ClassStore:
 
     def _row(self, roll: str) -> dict:
         """A roll number that is not on the roster is a student new to the class list: add a row for them.
-        The phone never sends a name, so the teacher sees 'New student' and the roll number."""
+        It shows the first name the phone sent, or 'New student'."""
         if roll not in self.rows:
             self.rows[roll] = {"roll": roll, "name": "New student", "step": "discover", "path": None, "path_name": None, "plan_done": None,
                                "blocker": "no_path_yet", "live": True, "new": True, "last_event_at": None}
@@ -73,7 +73,7 @@ class ClassStore:
                 continue
             self.seen.add(ev.event_id)
             accepted.append(ev.event_id)
-            self.last_event = ev.model_dump(mode="json")
+            self.last_event = ev.model_dump(mode="json", exclude_unset=True)   # exactly the fields the phone sent
             prev = self.latest.get(ev.student)
             if prev is not None and ev.ts <= prev:
                 continue                       # an older snapshot arrived late: the latest ts wins
@@ -81,6 +81,8 @@ class ClassStore:
             row = self._row(ev.student)
             row.update(step=ev.step, path=ev.path, path_name=_path_name(ev.path), plan_done=ev.plan_done, blocker=ev.blocker,
                        live=True, last_event_at=_iso(ev.ts))
+            if row["new"]:                     # roster students keep the roster name
+                row["name"] = ev.name or "New student"
         if accepted:
             self.updated_at = _now()
         return accepted, duplicates

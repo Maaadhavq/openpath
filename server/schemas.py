@@ -13,6 +13,8 @@ from .config import DATA_DIR
 Step = Literal["discover", "paths", "plan"]
 Blocker = Literal["no_path_yet", "bank_account_aadhaar", "income_certificate", "community_certificate", "aadhaar"]
 PlanDone = Annotated[str, StringConstraints(pattern=r"^\d{1,2}/\d{1,2}$")]
+# A new student's first name, typed on the phone: letters in any script and spaces, no markup or control characters.
+FirstName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=24, pattern=r"^[^\x00-\x1f<>&{}\[\]\\]+$")]
 
 
 @lru_cache(maxsize=1)
@@ -31,6 +33,7 @@ class SyncEvent(BaseModel):
     path: str | None
     plan_done: PlanDone | None
     blocker: Blocker | None
+    name: FirstName | None = None          # sent only for students who joined on the phone
 
     @field_validator("path")
     @classmethod

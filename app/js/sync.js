@@ -1,9 +1,10 @@
 // Offline sync queue. Holds progress snapshots in localStorage (op.queue) and sends them to /api/sync when online.
-// An event carries only the roll number, step, path, plan progress and one blocker: never the profile, answers or name.
+// An event carries only the roll number, step, path, plan progress, one blocker and, for a student who joined on the phone,
+// her first name: never the profile or answers.
 // Sends: right after a change, at start, when the network comes back, when the app returns to the foreground,
 // every 15 s, and after a failure at 2, 4 and 8 s (the radio often needs a few seconds after airplane mode goes off).
 const QUEUE = 'op.queue', LAST = 'op.lastQueued', AT = 'op.syncedAt';
-const FIELDS = ['step', 'path', 'plan_done', 'blocker'];
+const FIELDS = ['step', 'path', 'plan_done', 'blocker', 'name'];
 let onChange = function(){};
 let failed = false, sending = false, timer = null, retry = null, fails = 0;
 
@@ -27,12 +28,14 @@ export function initSync(opts){
 }
 
 // Adds a snapshot unless it is the same as the last one queued.
-export function enqueue(student, progress){
+export function enqueue(student, progress, name){
+  var p = { step: progress.step, path: progress.path, plan_done: progress.plan_done, blocker: progress.blocker, name: name || null };
   var last = load(LAST, null);
-  if (last && last.student === student && FIELDS.every(function(k){ return last[k] === progress[k]; })) return false;
-  var ev = { event_id: uuid(), student: student, ts: new Date().toISOString(), step: progress.step, path: progress.path, plan_done: progress.plan_done, blocker: progress.blocker };
+  if (last && last.student === student && FIELDS.every(function(k){ return (last[k] == null ? null : last[k]) === p[k]; })) return false;
+  var ev = { event_id: uuid(), student: student, ts: new Date().toISOString(), step: p.step, path: p.path, plan_done: p.plan_done, blocker: p.blocker };
+  if (p.name) ev.name = p.name;
   var q = load(QUEUE, []); q.push(ev); save(QUEUE, q);
-  save(LAST, { student: student, step: ev.step, path: ev.path, plan_done: ev.plan_done, blocker: ev.blocker });
+  save(LAST, { student: student, step: p.step, path: p.path, plan_done: p.plan_done, blocker: p.blocker, name: p.name });
   onChange();
   if (navigator.onLine !== false && !sending) setTimeout(flush, 0);   // send right away when online, so the teacher view stays live
   return true;

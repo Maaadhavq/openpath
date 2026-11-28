@@ -59,7 +59,7 @@ function freshState(){
     path:null, plan:null, done:{}, story:null, sheet:null, panel:'rules', prevScreen:null };
 }
 S = freshState();
-// Students who joined on this phone: [{ roll, name, pin }]. Kept only on this phone; the name is never sent anywhere.
+// Students who joined on this phone: [{ roll, name, pin }]. The first name goes to the teacher with her progress; the PIN stays here.
 function joined(){ return recall('op.students') || []; }
 function joinedStudent(roll){ return joined().filter(function(x){ return x.roll === roll; })[0] || null; }
 function rollOf(who){ return who === 'kavya' ? KAVYA_ROLL : /^10B-\d{2}$/.test(who || '') ? who : null; }
@@ -170,7 +170,7 @@ function scrRegister(){
       '<div class="field"><label class="label" for="regRoll">' + bi(L('வகுப்பு 10-B-யில் உன் ரோல் எண்','Your roll number in Class 10-B')) + '</label><input class="inp" id="regRoll" inputmode="numeric" maxlength="2" autocomplete="off" value="' + esc(R.roll) + '"></div>' +
       '<div class="field"><label class="label" for="regName">' + bi(L('உன் பெயர் (விருப்பம்)','Your first name (optional)')) + '</label><input class="inp" id="regName" maxlength="24" autocomplete="off" value="' + esc(R.name) + '"></div>' +
       (R.msg ? '<p class="warn">' + bi(R.msg) + '</p>' : '') +
-      '<p class="note">' + bi(L('உன் பெயரும் விவரங்களும் இந்த போனில் மட்டுமே இருக்கும். ஆசிரியர் உன் ரோல் எண்ணையும் முன்னேற்றத்தையும் மட்டுமே பார்ப்பார்.','Your name and details stay on this phone. Your teacher sees only your roll number and your progress.')) + '</p>' +
+      '<p class="note">' + bi(L('ஆசிரியர் உன் பெயர், ரோல் எண், முன்னேற்றத்தை மட்டுமே பார்ப்பார். மற்ற விவரங்கள் இந்த போனில் மட்டுமே இருக்கும்.','Your teacher sees your first name, roll number and progress. Your other details stay on this phone.')) + '</p>' +
       '<div class="row"><button class="btn" data-act="reg-next">' + bi(L('தொடர்','Continue')) + '</button></div>' +
       '<button class="link start" data-act="who-back">' + bi(L('வேறு நபர்','Someone else')) + '</button></div>';
   }
@@ -447,7 +447,8 @@ function go(screen){ S.screen = screen; render(); if (screen !== 'discover') scr
 function queueProgress(){
   var roll = rollOf(S.who);
   if (!roll || !S.user) return;
-  enqueue(roll, progressOf(S.answers, S.path, S.plan, S.done, S.profile));
+  var rec = S.who === 'kavya' ? null : joinedStudent(S.who);
+  enqueue(roll, progressOf(S.answers, S.path, S.plan, S.done, S.profile), rec && rec.name ? rec.name : null);
 }
 
 /* ---------------- voice ---------------- */

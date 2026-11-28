@@ -113,21 +113,21 @@ def test_new_student_filled_in_offline_reaches_the_teacher(page, context, browse
     context.set_offline(False)
     page.wait_for_function("document.getElementById('phStatus').innerText.includes('Synced')", timeout=15000)
     row = next(s for s in httpx.get(server + "/api/class").json()["students"] if s["roll"] == "10B-26")
-    assert row["name"] == "New student" and row["new"] is True and row["live"] is True
+    assert row["name"] == "Meena" and row["new"] is True and row["live"] is True
     assert row["path"] == pid and row["plan_done"] == f"1/{total}"
     teacher.wait_for_selector("tr[data-roll='10B-26']", timeout=8000)
     t = teacher.inner_text("tr[data-roll='10B-26']")
-    assert "New student" in t and "(new)" in t and "10B-26" in t and f"1/{total}" in t
+    assert "Meena" in t and "(new)" in t and "10B-26" in t and f"1/{total}" in t
     assert teacher.locator("#rows tr").count() == 26
     teacher.locator("tr[data-roll='10B-26']").scroll_into_view_if_needed()
     shot(teacher, "laptop-teacher-new-student")
 
-    # what went over the network: only roll number and progress, never her name or details
+    # what went over the network: roll number, progress and her first name, never her details
     assert bodies
     for b in bodies:
-        assert "Meena" not in b and "girl" not in b and "BC" not in b and "lt1" not in b
+        assert "girl" not in b and "BC" not in b and "lt1" not in b
         for ev in json.loads(b)["events"]:
-            assert set(ev) == ALLOWED
+            assert set(ev) == ALLOWED | {"name"} and ev["name"] == "Meena"
     assert any(ev["student"] == "10B-26" for b in bodies for ev in json.loads(b)["events"])
 
     # her profile is saved on the phone behind her picture PIN

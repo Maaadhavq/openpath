@@ -44,7 +44,7 @@ def test_sync_updates_the_live_row(client):
     assert client.get("/api/class").json()["last_event"]["event_id"] == ev["event_id"]
 
 
-@pytest.mark.parametrize("field,value", [("community", "MBC"), ("income", "1to2.5"), ("gender", "girl"), ("name", "Kavya S"),
+@pytest.mark.parametrize("field,value", [("community", "MBC"), ("income", "1to2.5"), ("gender", "girl"),
                                           ("answers", {"home": "accounts"}), ("docs", {"bank": False})])
 def test_sync_rejects_personal_fields(client, field, value):
     r = client.post("/api/sync", json={"events": [event(**{field: value})]})
@@ -123,3 +123,19 @@ def test_reset_needs_the_passcode_and_reseeds(client):
 
 def test_class_is_not_cached(client):
     assert client.get("/api/class").headers["cache-control"] == "no-store"
+
+
+def test_new_student_first_name(client):
+    client.post("/api/sync", json={"events": [event(student="10B-30", name="  Meena ")]})
+    assert row(client, "10B-30")["name"] == "Meena"
+    client.post("/api/sync", json={"events": [event(student="10B-30", ts="2026-11-30T11:20:00Z")]})     # later event without a name
+    assert row(client, "10B-30")["name"] == "New student"
+    client.post("/api/sync", json={"events": [event(student="10B-01", name="Someone")]})              # roster rolls keep their name
+    assert row(client, "10B-01")["name"] == "Anitha R"
+    client.post("/api/sync", json={"events": [event(student="10B-31", name="மீனா")]})
+    assert row(client, "10B-31")["name"] == "மீனா"
+
+
+@pytest.mark.parametrize("bad", ["", "x" * 25, "<script>", "a\nb", "{}"])
+def test_bad_first_names_rejected(client, bad):
+    assert client.post("/api/sync", json={"events": [event(student="10B-32", name=bad)]}).status_code == 422

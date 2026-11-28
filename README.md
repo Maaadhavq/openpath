@@ -9,7 +9,7 @@ A voice-first career and scheme guide for rural Tamil Nadu students in Classes 9
 
 **Live:** student app https://openpath-nx3v.onrender.com · teacher dashboard https://openpath-nx3v.onrender.com/teacher/ (free Render server: the first visit after 15 idle minutes takes about a minute).
 
-`CLAUDE.md` is the full build brief. `reference/openpath_prototype.html` is the Round 2 prototype the app was ported from.
+`SETUP.md` has the step-by-step setup for the team and the demo. `CLAUDE.md` is the full build brief. `reference/openpath_prototype.html` is the Round 2 prototype the app was ported from.
 
 ## Run locally
 

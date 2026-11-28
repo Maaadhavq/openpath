@@ -27,7 +27,8 @@ Never put the key or passcode in the code, GitHub, chat groups or slides.
 2. Tap ⋮ → **Install app**. OpenPath appears in the app drawer.
 3. Open OpenPath from the app drawer, tap the **sliders icon** (Settings), enter the demo passcode, tap **Save**.
 4. Allow the microphone when the app asks the first time you tap **Speak**.
-5. Test: Kavya, PIN **sun, leaf, star** → answer → details → Lab technician. Turn on **airplane mode**: Support still works and a tick shows "1 update waiting". Turn airplane mode off: it shows "Synced".
+5. A new student taps **New student** and uses roll **26 or above** (01 to 25 are the sample class already on the teacher page).
+6. Test: Kavya, PIN **sun, leaf, star** → answer → details → Lab technician. Turn on **airplane mode**: Support still works and a tick shows "1 update waiting". Turn airplane mode off: it shows "Synced".
 
 After every new deploy, open the app **twice** to get the new version. If it still looks old: Android Settings → Apps → Chrome → Storage → manage space → clear data for the site, then open the link again.
 

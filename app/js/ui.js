@@ -1,6 +1,6 @@
 // Screens, sheets and render for the student app. Ported from the Round 2 prototype; the rules live in engine.js.
 import { CHECKED, L, SKILL, QUESTIONS, PATHS, PATH, loadData, skillsFrom, recommend, SCHEMES, SCHEME, evaluate, evaluateAll,
-  DOCS, relevantMissing, makePlan, nextDecision, blankProfile, KAVYA, clone, progressOf } from './engine.js';
+  DOCS, relevantMissing, makePlan, nextDecision, blankProfile, KAVYA, clone, progressOf, CLASSMATES } from './engine.js';
 import { esc, bi, joinL, catL, STR } from './strings.js';
 import { runChecks, lastChecks, measureAppSize } from './checks.js';
 import { initAudio, playClips, stopClips } from './audio.js';
@@ -498,6 +498,8 @@ function registerRoll(){
   var num = /^\d{1,2}$/.test(R.roll) ? +R.roll : 0;
   if (num < 1 || num > 99) { R.msg = L('1 முதல் 99 வரை உள்ள உன் ரோல் எண்ணை உள்ளிடு.', 'Enter your roll number, from 1 to 99.'); render(); return; }
   var roll = '10B-' + String(num).padStart(2, '0');
+  // Rolls 01 to 25 are the sample class already on the teacher's list; a new student would overwrite that student's row.
+  if (CLASSMATES.some(function(c){ return c[0] === roll; })) { R.msg = L('ரோல் ' + roll.slice(4) + ' ஏற்கனவே வகுப்புப் பட்டியலில் உள்ளது. புதிய மாணவர்கள் 26 அல்லது அதற்கு மேல் உள்ள எண்ணைப் பயன்படுத்தவும்.', 'Roll ' + roll.slice(4) + ' is already on the class list. New students use 26 or above.'); render(); return; }
   if (roll === KAVYA_ROLL || joinedStudent(roll)) { R.msg = L('ரோல் ' + roll.slice(4) + '-க்கு இந்த போனில் ஏற்கனவே சுயவிவரம் உள்ளது.', 'Roll ' + roll.slice(4) + ' already has a profile on this phone.'); render(); return; }
   R.roll = roll; R.step = 'pin'; R.msg = null; S.pin = []; render();
 }

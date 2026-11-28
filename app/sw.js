@@ -1,6 +1,6 @@
 // OpenPath service worker: keeps the whole student app on the phone so it works in airplane mode.
 // Bump the number on every deploy, otherwise phones keep the old version.
-const CACHE = 'op-v2';
+const CACHE = 'op-v3';
 
 const CORE = [
   '/', '/index.html', '/app.css', '/manifest.webmanifest',

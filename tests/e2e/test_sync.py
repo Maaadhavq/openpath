@@ -81,6 +81,9 @@ def test_new_student_filled_in_offline_reaches_the_teacher(page, context, browse
     page.fill("#regRoll", "7")
     page.click("[data-act=reg-next]")
     assert "already has a profile" in page.inner_text("#phBody")       # Kavya is roll 07 on this phone
+    page.fill("#regRoll", "22")
+    page.click("[data-act=reg-next]")
+    assert "already on the class list" in page.inner_text("#phBody")   # roll 22 is Pavithra D in the sample class
     page.fill("#regRoll", "26")
     page.fill("#regName", "Meena")
     page.click("[data-act=reg-next]")

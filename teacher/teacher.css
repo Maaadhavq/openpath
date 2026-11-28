@@ -33,12 +33,61 @@ p{margin:0}
 .btn.primary{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:600}
 .btn.link{border:0;padding:0 2px;min-height:32px;color:var(--green);text-decoration:underline;text-underline-offset:3px}
 
-/* sign-in */
-.signin{min-height:100vh;display:grid;place-items:center;padding:16px}
-.signin-box{width:100%;max-width:400px;background:var(--surface);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px}
-.signin-box h1{font-size:24px}
-.brand{font-weight:700;color:var(--green);font-size:17px}
+/* home page */
+.brand{font-weight:700;color:var(--green);font-size:17px;text-decoration:none}
 .brand span{color:var(--muted);font-weight:500;font-size:14px}
+.home{display:flex;flex-direction:column;min-height:100vh}
+.hnav{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.hnav-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hlinks{display:flex;align-items:center;gap:4px 18px;flex-wrap:wrap}
+.hlinks a{color:var(--ink);text-decoration:none;font-size:14px;padding:10px 0}
+.hlinks a:hover{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.hmain{max-width:1180px;width:100%;margin:0 auto;padding:40px 16px 64px;display:flex;flex-direction:column;gap:72px}
+.hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;align-items:center}
+.hero-text{display:flex;flex-direction:column;gap:14px}
+.kicker{font-size:13.5px;color:var(--green);font-weight:600}
+.hero h1{font-size:clamp(30px,4.2vw,46px);line-height:1.1;letter-spacing:-.01em;text-wrap:balance}
+.ta-line{color:var(--muted);font-size:16px}
+.lede{font-size:16.5px;max-width:58ch}
+.btn.big{min-height:48px;padding:10px 18px;font-size:15px}
+.shot{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.shot img{display:block;width:100%;height:auto}
+.features{display:flex;flex-direction:column;gap:56px}
+.feature{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:36px;align-items:center}
+.feature.flip{grid-template-columns:minmax(0,7fr) minmax(0,4fr)}
+.feature.flip .ftext{order:2}
+.ftext{display:flex;flex-direction:column;gap:10px}
+.ftext h2{font-size:24px;text-wrap:balance}
+.ftext h2 .ta{display:block;font-size:15px;margin-top:4px}
+.ftext p{font-size:15.5px;max-width:52ch}
+.how,.privacy,.cta{display:flex;flex-direction:column;gap:18px}
+.how h2,.privacy h2,.cta h2{font-size:26px}
+.how h2 .ta,.privacy h2 .ta{display:block;font-size:15px;margin-top:4px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;counter-reset:step}
+.steps li{background:var(--surface);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px;counter-increment:step}
+.steps li b::before{content:counter(step) ". ";color:var(--green)}
+.steps li span{color:var(--muted);font-size:14.5px}
+.pcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pcol{background:var(--surface);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.pcol ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.pcol.never{background:var(--tint)}
+.pcol.never h3{color:var(--ochre)}
+.cta{background:var(--green-tint);border-radius:14px;padding:28px;align-items:flex-start}
+.hfoot{max-width:1180px;width:100%;margin:0 auto;padding:16px 16px 32px;color:var(--muted);font-size:13px}
+@media (max-width:900px){
+  .hero,.feature,.feature.flip{grid-template-columns:minmax(0,1fr);gap:20px}
+  .feature.flip .ftext{order:0}
+  .steps,.pcols{grid-template-columns:minmax(0,1fr)}
+  .hmain{gap:52px;padding-top:28px}
+}
+
+/* sign-in dialog */
+.modal-bg{position:fixed;inset:0;background:rgba(15,20,18,.5);z-index:40}
+.modal{position:fixed;inset:0;z-index:41;display:grid;place-items:center;padding:16px;pointer-events:none}
+.modal .signin-box{pointer-events:auto}
+.signin-box{width:100%;max-width:420px;background:var(--surface);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.signin-box h2{font-size:24px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 
 /* frame */
 .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:14px max(16px,calc((100vw - 1180px)/2)) 10px;background:var(--surface)}

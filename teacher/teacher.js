@@ -45,13 +45,19 @@
     return names.join(', ');
   }
 
-  /* ---------------- sign-in ---------------- */
-  function showSignin(msg){
-    stopPolling();
-    $('app').hidden = true; $('signin').hidden = false;
+  /* ---------------- home page and sign-in ---------------- */
+  function showHome(){ stopPolling(); closeSignin(); $('app').hidden = true; $('home').hidden = false; }
+  function openSignin(msg){
+    $('signin').hidden = false; $('signinBg').hidden = false;
     $('signinMsg').hidden = !msg; $('signinMsg').textContent = msg || '';
     setTimeout(function(){ $('code').focus(); }, 0);
   }
+  function closeSignin(){ $('signin').hidden = true; $('signinBg').hidden = true; }
+  function showSignin(msg){ showHome(); openSignin(msg); }
+  document.addEventListener('click', function(ev){ if (ev.target.closest('[data-signin]')) openSignin(''); });
+  $('signinClose').addEventListener('click', closeSignin);
+  $('signinBg').addEventListener('click', closeSignin);
+  document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && !$('signin').hidden) closeSignin(); });
   function explain(e){
     if (e && e.status === 401) return 'That class code is not right.';
     if (e && e.status === 429) return 'Too many tries. Wait a minute and try again.';
@@ -60,14 +66,14 @@
   }
   function signIn(){
     return api('/api/class').then(function(j){
-      $('signin').hidden = true; $('app').hidden = false;
+      closeSignin(); $('home').hidden = true; $('app').hidden = false; window.scrollTo(0, 0);
       S.data = j; S.failures = 0;
       $('updated').textContent = 'Updated ' + two(new Date().getHours()) + ':' + two(new Date().getMinutes()) + ':' + two(new Date().getSeconds());
       renderAll(); startPolling();
     }).catch(function(e){ showSignin(code() ? explain(e) : ''); });
   }
   $('signinForm').addEventListener('submit', function(ev){ ev.preventDefault(); setCode($('code').value.trim()); signIn(); });
-  $('signout').addEventListener('click', function(){ setCode(null); S.chat = []; closeDrawer(); showSignin(''); });
+  $('signout').addEventListener('click', function(){ setCode(null); S.chat = []; closeDrawer(); showHome(); window.scrollTo(0, 0); });
 
   /* ---------------- polling ---------------- */
   function startPolling(){ stopPolling(); S.timer = setInterval(poll, 3000); }
@@ -288,5 +294,5 @@
   });
 
   /* ---------------- start ---------------- */
-  if (code()) signIn(); else showSignin('');
+  if (code()) signIn(); else showHome();
 })();

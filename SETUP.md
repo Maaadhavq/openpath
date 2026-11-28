@@ -35,7 +35,7 @@ After every new deploy, open the app **twice** to get the new version. If it sti
 
 ## 3. The teacher laptop
 
-1. Open the teacher dashboard link and enter the class code (`TEACHER_CODE`, or the demo passcode). It refreshes every 3 seconds and keeps the free server awake.
+1. Open the teacher dashboard link. It starts on the OpenPath for teachers home page: press **Sign in** and enter the class code (`TEACHER_CODE`, or the demo passcode). The laptop stays signed in until **Sign out**. It refreshes every 3 seconds and keeps the free server awake.
 2. Tabs: **Overview** (figures, this week's blockers, live activity from phones, paths chosen, coming up, what the phone sent), **Students** (search, filters, click a student for details), **Actions** (one card per blocker, with a parent message to copy and a print view) and **Ask OpenPath**.
 3. **Reset demo** (top right) puts the class back to the 25 sample students.
 

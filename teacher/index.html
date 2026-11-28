@@ -12,15 +12,127 @@
 </head>
 <body>
 
-<div id="signin" class="signin" hidden>
+<div id="home" class="home" hidden>
+  <header class="hnav">
+    <div class="hnav-in">
+      <a class="brand" href="/teacher/">OpenPath <span>for teachers</span></a>
+      <nav class="hlinks" aria-label="Home page">
+        <a href="#how">How it works</a>
+        <a href="#privacy">Privacy</a>
+        <a href="/" target="_blank" rel="noopener">Student app</a>
+        <button class="btn primary" type="button" data-signin>Sign in</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hmain">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="kicker">For class teachers of Classes 9 to 12 in Tamil Nadu</p>
+        <h1>See who is stuck, and what to do this week</h1>
+        <p class="ta-line">யாருக்கு உதவி தேவை, இந்த வாரம் என்ன செய்வது என்று ஒரே இடத்தில் பாருங்கள்</p>
+        <p class="lede">Your students get a career and scheme guide in Tamil that works without a signal. You see the path each student chose, how far she has got and the one thing blocking her, straight from her phone. Her community, income and answers never leave it.</p>
+        <div class="row">
+          <button class="btn primary big" type="button" data-signin>Sign in to your class</button>
+          <a class="btn big" href="/" target="_blank" rel="noopener">Open the student app</a>
+        </div>
+        <p class="note">Demo: Class 10-B, a government higher secondary school, with 25 sample students.</p>
+      </div>
+      <figure class="shot hero-shot"><img src="img/overview.webp" width="1600" height="1000" alt="The teacher's overview for Class 10-B: 22 of 25 chose a path, 9 need help with a document, this week's blockers with names, and updates arriving live from students' phones."></figure>
+    </section>
+
+    <section class="features" aria-label="What you can do">
+      <article class="feature">
+        <div class="ftext">
+          <h2>Live from the phones <span class="ta">போன்களிலிருந்து நேரடியாக</span></h2>
+          <p>Four numbers tell you where the class stands. Below them, this week's blockers with names, and each student's update a few seconds after her phone finds a signal.</p>
+        </div>
+        <figure class="shot"><img src="img/overview-live.webp" width="1600" height="447" loading="lazy" alt="The four figures, this week's bank-account and income-certificate blockers with names, and Kavya S's updates arriving live."></figure>
+      </article>
+      <article class="feature flip">
+        <div class="ftext">
+          <h2>One student, in detail <span class="ta">ஒரு மாணவி, விரிவாக</span></h2>
+          <p>Open any student to see her path, her plan week by week, her next step, how you can help with her blocker, and a message for her parents in Tamil and English.</p>
+        </div>
+        <figure class="shot"><img src="img/student.webp" width="1600" height="1000" loading="lazy" alt="Kavya S, Lab technician: plan 1 of 7 steps, next step, and how to help with a bank account."></figure>
+      </article>
+      <article class="feature">
+        <div class="ftext">
+          <h2>This week's work, grouped <span class="ta">இந்த வாரப் பணிகள்</span></h2>
+          <p>One card per blocker: who needs a bank account, an income certificate or a path. Each card says what to do and where. Print the list for the post office or e-Sevai, or copy the parent message into WhatsApp.</p>
+        </div>
+        <figure class="shot"><img src="img/actions.webp" width="1600" height="1000" loading="lazy" alt="Action cards: 4 need a bank account, 3 need an income certificate, with steps and a parent message."></figure>
+      </article>
+      <article class="feature flip">
+        <div class="ftext">
+          <h2>Ask OpenPath <span class="ta">கேளுங்கள்</span></h2>
+          <p>Ask in Tamil or English: who needs help, how to get an income certificate, what a scheme requires. Answers come from your class and the scheme rules, with sources. It never decides who is eligible; each student's phone checks that.</p>
+        </div>
+        <figure class="shot"><img src="img/ask.webp" width="1600" height="1000" loading="lazy" alt="Ask OpenPath answering who needs help this week, with names and next steps."></figure>
+      </article>
+    </section>
+
+    <section class="how" id="how" aria-labelledby="h-how">
+      <h2 id="h-how">How it works <span class="ta">எப்படி வேலை செய்கிறது</span></h2>
+      <ol class="steps">
+        <li><b>On her phone</b><span>She answers three questions by voice or by tapping pictures. Paths, a 4-week plan and 11 scheme checks work in airplane mode.</span></li>
+        <li><b>When she has signal</b><span>Her path, progress and one blocker reach you within seconds. Her details stay on the phone.</span></li>
+        <li><b>On your laptop or phone</b><span>You see the class, act on blockers this week, message parents and ask OpenPath.</span></li>
+      </ol>
+    </section>
+
+    <section class="privacy" id="privacy" aria-labelledby="h-privacy">
+      <h2 id="h-privacy">What you see, and what you never see <span class="ta">தனியுரிமை</span></h2>
+      <div class="pcols">
+        <div class="pcol">
+          <h3>You see</h3>
+          <ul>
+            <li>Roll number, and the first name of a student who joined on the phone</li>
+            <li>The path she chose</li>
+            <li>Plan progress, overall and week by week</li>
+            <li>The kind of step she is on next</li>
+            <li>One blocker, such as a bank account</li>
+            <li>When her phone last sent an update</li>
+          </ul>
+        </div>
+        <div class="pcol never">
+          <h3>Never leaves her phone</h3>
+          <ul>
+            <li>Gender, community and family income</li>
+            <li>The documents she holds and her marks</li>
+            <li>Her answers and her voice recording</li>
+            <li>Which schemes she is eligible for</li>
+          </ul>
+          <p class="note">Ask OpenPath refuses to list or count students by caste, income or gender. Its AI sees roll numbers, never names.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>Open Class 10-B</h2>
+      <p>The class code is given to the class teacher.</p>
+      <button class="btn primary big" type="button" data-signin>Sign in</button>
+    </section>
+  </main>
+
+  <footer class="hfoot">
+    <p>OpenPath, built by Team 5fire, VIT Chennai, for the Citi India Hackathon 2026. Students shown are sample data.</p>
+  </footer>
+</div>
+
+<div id="signinBg" class="modal-bg" hidden></div>
+<div id="signin" class="modal" role="dialog" aria-modal="true" aria-labelledby="signinTitle" hidden>
   <form id="signinForm" class="signin-box">
-    <p class="brand">OpenPath <span>for teachers</span></p>
-    <h1>Class 10-B <span class="ta">வகுப்பு 10-B</span></h1>
+    <div class="modal-head">
+      <p class="brand">OpenPath <span>for teachers</span></p>
+      <button class="btn quiet" type="button" id="signinClose" aria-label="Close">Close</button>
+    </div>
+    <h2 id="signinTitle">Class 10-B <span class="ta">வகுப்பு 10-B</span></h2>
     <label class="label" for="code">Class code <span class="ta">வகுப்புக் குறியீடு</span></label>
     <input id="code" class="inp" inputmode="numeric" autocomplete="off" required>
     <p class="warn" id="signinMsg" role="alert" hidden></p>
     <button class="btn primary" type="submit">Open the class</button>
-    <p class="note">Only what students' phones share appears here: progress, the path they chose and one blocker. Community, income, gender and their answers stay on their phones.</p>
+    <p class="note">Only what students' phones share appears inside: progress, the path they chose and one blocker.</p>
   </form>
 </div>
 

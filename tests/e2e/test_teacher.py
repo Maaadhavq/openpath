@@ -27,22 +27,50 @@ def test_kb_matches_the_engine(page, server):
     assert live == saved, "app/data/kb.json is out of date: run python scripts/export_kb.py"
 
 
-def test_sign_in(page, server):
+def test_home_page_then_sign_in(page, server, shot):
+    """A teacher who isn't signed in lands on the home page; Sign in opens the class-code box."""
     reset(server)
+    page.set_viewport_size(SIZES["laptop"])
     page.goto(server + "/teacher/")
+    page.wait_for_selector("#home .hero h1")
+    assert page.is_hidden("#app") and page.is_hidden("#signin")
+    assert "See who is stuck" in page.inner_text(".hero h1")
+    page.wait_for_function("[...document.querySelectorAll('#home img')].slice(0, 1).every(i => i.complete && i.naturalWidth > 0)")
+    shot(page, "teacher-laptop-home")
+    page.click(".hnav [data-signin]")
     page.wait_for_selector("#signinForm")
-    assert page.is_hidden("#app")
+    assert page.is_visible("#signin")
+    page.click("#signinClose")
+    assert page.is_hidden("#signin")
+    page.click(".hero [data-signin]")
     page.fill("#code", "000000")
-    page.click("#signinForm button")
+    page.click("#signinForm button[type=submit]")
     page.wait_for_selector("#signinMsg:not([hidden])")
     assert "not right" in page.inner_text("#signinMsg")
     page.fill("#code", PASSCODE)
-    page.click("#signinForm button")
+    page.click("#signinForm button[type=submit]")
     page.wait_for_selector("#v-overview .figs")
+    assert page.is_hidden("#home")
     figs = page.inner_text("#v-overview .figs")
     assert "21 of 25" in figs and "chose a path" in figs
+    page.reload()                                              # stays signed in
+    page.wait_for_selector("#v-overview .figs")
     page.click("#signout")
-    page.wait_for_selector("#signinForm")
+    page.wait_for_selector("#home .hero h1")
+    assert page.is_hidden("#app")
+
+
+def test_home_page_at_phone_size(browser, server, shot):
+    ctx = browser.new_context(viewport=SIZES["phone"], device_scale_factor=1)
+    p = ctx.new_page()
+    p.goto(server + "/teacher/")
+    p.wait_for_selector("#home .hero h1")
+    assert p.evaluate("document.documentElement.scrollWidth <= window.innerWidth"), "the home page scrolls sideways"
+    shot(p, "teacher-phone-home")
+    p.click(".hero [data-signin]")
+    p.wait_for_selector("#signinForm")
+    shot(p, "teacher-phone-signin")
+    ctx.close()
 
 
 def test_overview_drawer_actions_after_kavya_syncs(page, context, server, shot):

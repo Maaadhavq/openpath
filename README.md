@@ -4,7 +4,8 @@ A voice-first career and scheme guide for rural Tamil Nadu students in Classes 9
 
 - **Phone:** an installable web app (PWA). The scheme rules, the 14 paths and the 4-week plan run on the phone and work in airplane mode.
 - **Voice:** the phone records a 16 kHz WAV and sends it to `/api/talk`. Saaras v4 turns it into text and Sarvam-105B matches it to one of the picture options. The student confirms every answer by tapping the picture. The language model never decides who is eligible.
-- **Teacher:** `/teacher` shows class 10-B live. The phone sends only progress and one blocker, never community, income, gender, documents or answers.
+- **Teacher:** `/teacher` shows class 10-B live. The phone sends only the roll number, progress and one blocker, never community, income, gender, documents, answers or names.
+- **New students:** on the lock screen, "New student" asks for a roll number, an optional first name (kept on the phone) and 3 pictures as a PIN. Their progress queues offline and syncs when the network returns; a roll number not on the roster appears on the teacher page as "New student (new)" with the roll number.
 
 **Live:** student app https://openpath-nx3v.onrender.com · teacher dashboard https://openpath-nx3v.onrender.com/teacher/ (free Render server: the first visit after 15 idle minutes takes about a minute).
 

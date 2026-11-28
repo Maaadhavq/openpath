@@ -25,7 +25,7 @@ class SyncEvent(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     event_id: Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9-]{8,64}$")]
-    student: Annotated[str, StringConstraints(pattern=r"^10B-\d{2}$")]
+    student: Annotated[str, StringConstraints(pattern=r"^10B-(0[1-9]|[1-9][0-9])$")]   # roll 01 to 99 in class 10-B
     ts: datetime
     step: Step
     path: str | None

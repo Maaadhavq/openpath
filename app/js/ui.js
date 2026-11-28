@@ -7,7 +7,7 @@ import { initAudio, playClips, stopClips } from './audio.js';
 import { startRecording, stopRecording, cancelRecording, isRecording, sendTalk } from './voice.js';
 import { initSync, enqueue, queueCount, syncedAt, clearQueue, netFailed } from './sync.js';
 
-const ROLL = '10B-07';            // Kavya's roll number in class 10-B
+const KAVYA_ROLL = '10B-07';      // Kavya's roll number in class 10-B
 let APP_VERSION = null;           // the service-worker cache name, e.g. op-v3
 let EVAL = null;                  // data/eval_results.json, if it exists
 
@@ -55,17 +55,23 @@ var S;
 function store(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function recall(k){ try { var v = localStorage.getItem(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } }
 function freshState(){
-  return { lang:recall('op.lang') || 'bi', screen:'lock', who:null, user:null, userTa:null, pin:[], pinMsg:null, answers:{}, profile:blankProfile(),
+  return { lang:recall('op.lang') || 'bi', screen:'lock', who:null, user:null, greet:null, pin:[], pinMsg:null, reg:null, answers:{}, profile:blankProfile(),
     path:null, plan:null, done:{}, story:null, sheet:null, panel:'rules', prevScreen:null };
 }
 S = freshState();
+// Students who joined on this phone: [{ roll, name, pin }]. Kept only on this phone; the name is never sent anywhere.
+function joined(){ return recall('op.students') || []; }
+function joinedStudent(roll){ return joined().filter(function(x){ return x.roll === roll; })[0] || null; }
+function rollOf(who){ return who === 'kavya' ? KAVYA_ROLL : /^10B-\d{2}$/.test(who || '') ? who : null; }
+function pinOf(who){ if (PIN_CODE[who]) return PIN_CODE[who]; var x = joinedStudent(who); return x ? x.pin : null; }
 // Each student's progress stays on this phone under op.state.<roll>, behind her picture PIN.
 function saveStudent(){
-  if (S.who !== 'kavya' || !S.user) return;
-  store('op.state.' + ROLL, { answers:S.answers, profile:S.profile, path:S.path, plan:S.plan, done:S.done, screen:S.screen === 'checks' ? S.prevScreen : S.screen });
+  var roll = rollOf(S.who);
+  if (!roll || !S.user) return;
+  store('op.state.' + roll, { answers:S.answers, profile:S.profile, path:S.path, plan:S.plan, done:S.done, screen:S.screen === 'checks' ? S.prevScreen : S.screen });
 }
-function restoreStudent(){
-  var saved = recall('op.state.' + ROLL);
+function restoreStudent(roll){
+  var saved = roll ? recall('op.state.' + roll) : null;
   if (!saved) return false;
   S.answers = saved.answers || {}; S.profile = saved.profile || blankProfile(); S.path = saved.path && PATH[saved.path] ? saved.path : null;
   S.plan = S.path ? saved.plan : null; S.done = saved.done || {};
@@ -138,16 +144,40 @@ function scrLock(){
     return '<div class="stack"><h2 class="h">' + bi(L('இந்த போனை யார் பயன்படுத்துகிறீர்கள்?','Who is using this phone?')) + '</h2>' +
       '<p class="note">' + bi(L('ஒரே போனில் ஒவ்வொருவருக்கும் படக் குறியீட்டுடன் தனி சுயவிவரம்.','On a shared family phone, each person gets a private profile with a picture PIN.')) + '</p>' +
       '<div class="who">' + people.map(function(x){ return '<button data-act="who" data-id="' + x[0] + '"><span class="avatar">' + x[1] + '</span><span><b>' + x[2] + '</b>' + bi(x[3]) + '</span></button>'; }).join('') +
+      joined().map(function(x){ var n = x.roll.slice(4); return '<button data-act="who" data-id="' + esc(x.roll) + '"><span class="avatar">' + esc(n) + '</span><span><b>' + esc(x.name || ('Roll ' + n)) + '</b>' + bi(L('மாணவர், 10-B · ரோல் ' + n, 'Student, Class 10-B · roll ' + n)) + '</span></button>'; }).join('') +
       '<button data-act="who" data-id="new"><span class="avatar">+</span><span>' + bi(L('புதிய மாணவர்','New student')) + '</span></button></div></div>';
   }
-  var initial = S.who === 'anbu' ? 'A' : 'K';
+  if (S.who === 'new') return scrRegister();
+  var initial = S.who === 'anbu' ? 'A' : S.who === 'kavya' ? 'K' : esc(S.who.slice(4));
   return '<div class="stack center"><span class="avatar big">' + initial + '</span>' +
     '<h2 class="h">' + bi(L('உன் படக் குறியீட்டைத் தொடு','Tap your picture PIN')) + '</h2>' +
     '<div class="dots">' + [0, 1, 2].map(function(i){ return '<span class="dot ' + (S.pin.length > i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
     '<div class="pinpad">' + Object.keys(PIN_SVG).map(function(k){ return '<button class="pin" data-act="pin" data-id="' + k + '" aria-label="' + PIN_NAME[k].en + '">' + PIN_SVG[k] + '<span>' + esc(S.lang === 'en' ? PIN_NAME[k].en : PIN_NAME[k].ta) + '</span></button>'; }).join('') + '</div>' +
     (S.pinMsg ? '<p class="warn">' + bi(S.pinMsg) + '</p>' : '') +
-    '<p class="hint">Demo PIN for Kavya: sun, leaf, star</p>' +
+    (S.who === 'kavya' ? '<p class="hint">Demo PIN for Kavya: sun, leaf, star</p>' : '') +
     '<button class="link" data-act="who-back">' + bi(L('வேறு நபர்','Someone else')) + '</button></div>';
+}
+function pinpad(){
+  return '<div class="dots">' + [0, 1, 2].map(function(i){ return '<span class="dot ' + (S.pin.length > i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
+    '<div class="pinpad">' + Object.keys(PIN_SVG).map(function(k){ return '<button class="pin" data-act="pin" data-id="' + k + '" aria-label="' + PIN_NAME[k].en + '">' + PIN_SVG[k] + '<span>' + esc(S.lang === 'en' ? PIN_NAME[k].en : PIN_NAME[k].ta) + '</span></button>'; }).join('') + '</div>';
+}
+// A student new to this phone: her roll number (sent with her progress), an optional first name (kept on this phone) and a picture PIN.
+function scrRegister(){
+  var R = S.reg;
+  if (R.step === 'roll') {
+    return '<div class="stack"><h2 class="h">' + bi(L('புதிய மாணவர்','New student')) + '</h2>' +
+      '<p class="note">' + bi(L('இந்த போனில் உனக்கென ஒரு தனி சுயவிவரம், படக் குறியீட்டுடன்.','Your own private profile on this phone, with a picture PIN.')) + '</p>' +
+      '<div class="field"><label class="label" for="regRoll">' + bi(L('வகுப்பு 10-B-யில் உன் ரோல் எண்','Your roll number in Class 10-B')) + '</label><input class="inp" id="regRoll" inputmode="numeric" maxlength="2" autocomplete="off" value="' + esc(R.roll) + '"></div>' +
+      '<div class="field"><label class="label" for="regName">' + bi(L('உன் பெயர் (விருப்பம்)','Your first name (optional)')) + '</label><input class="inp" id="regName" maxlength="24" autocomplete="off" value="' + esc(R.name) + '"></div>' +
+      (R.msg ? '<p class="warn">' + bi(R.msg) + '</p>' : '') +
+      '<p class="note">' + bi(L('உன் பெயரும் விவரங்களும் இந்த போனில் மட்டுமே இருக்கும். ஆசிரியர் உன் ரோல் எண்ணையும் முன்னேற்றத்தையும் மட்டுமே பார்ப்பார்.','Your name and details stay on this phone. Your teacher sees only your roll number and your progress.')) + '</p>' +
+      '<div class="row"><button class="btn" data-act="reg-next">' + bi(L('தொடர்','Continue')) + '</button></div>' +
+      '<button class="link start" data-act="who-back">' + bi(L('வேறு நபர்','Someone else')) + '</button></div>';
+  }
+  return '<div class="stack center"><span class="avatar big">' + esc(R.roll.slice(4)) + '</span>' +
+    '<h2 class="h">' + bi(L('உன் படக் குறியீட்டுக்கு 3 படங்களைத் தொடு','Tap 3 pictures for your PIN')) + '</h2>' +
+    '<p class="note">' + bi(L('இவற்றை நினைவில் வை. அடுத்த முறை இவற்றைத் தொட்டுத் திறக்கலாம்.','Remember them. Next time, tap the same 3 to open your profile.')) + '</p>' +
+    pinpad() + '<button class="link" data-act="reg-back">' + bi(STR.back) + '</button></div>';
 }
 function voiceBlock(q){
   var mine = V.qid === q.id, on = isOnline(), h = '';
@@ -168,8 +198,8 @@ function voiceBlock(q){
 }
 function strongSuggestion(){ return V.state === 'result' && V.suggestion && V.suggestion.confidence >= 0.5 ? V.suggestion.option_id : null; }
 function scrDiscover(){
-  var nameTa = S.userTa ? S.userTa + '! ' : '! ', nameEn = S.user && S.user !== 'New student' ? ' ' + S.user + '!' : '!';
-  var h = '<div class="msg">' + bi(L('வணக்கம்' + (S.userTa ? ' ' + nameTa : nameTa) + 'மூன்று சிறு கேள்விகள். பேசலாம், அல்லது படத்தைத் தொடலாம்.', 'Hello' + nameEn + ' Three short questions. Speak, or tap a picture.')) + '</div>';
+  var g = S.greet;
+  var h = '<div class="msg">' + bi(L('வணக்கம்' + (g ? ' ' + g.ta : '') + '! மூன்று சிறு கேள்விகள். பேசலாம், அல்லது படத்தைத் தொடலாம்.', 'Hello' + (g ? ' ' + g.en : '') + '! Three short questions. Speak, or tap a picture.')) + '</div>';
   var qi = qIndex();
   QUESTIONS.forEach(function(q, i){
     if (i > qi) return;
@@ -345,7 +375,7 @@ function phNav(){
 var MARK = { 'true':['yes','yes'], 'false':['no','no'], 'null':['ask','?'], likely:['likely','likely'], future:['later','later'], path:['if','if course'] };
 function panelRules(){
   var path = currentPath(), evals = evaluateAll(S.profile, path);
-  return '<h2>How it decides</h2><p class="note">Every result comes from rules written as code, with a source and a check date. The language model only matches a spoken answer to one of the pictures, and she confirms it with a tap. The language model never decides who is eligible. Showing Kavya’s current answers' + (path ? ' and her chosen path (' + esc(path.name.en) + ')' : '') + '.</p>' +
+  return '<h2>How it decides</h2><p class="note">Every result comes from rules written as code, with a source and a check date. The language model only matches a spoken answer to one of the pictures, and she confirms it with a tap. The language model never decides who is eligible. Showing ' + (S.greet ? esc(S.greet.en) + '’s' : S.user ? 'this student’s' : 'Kavya’s') + ' current answers' + (path ? ' and the chosen path (' + esc(path.name.en) + ')' : '') + '.</p>' +
     evals.map(function(e){
       var st = STATUS[e.status];
       return '<details class="scheme"><summary><span>' + esc(e.s.name.en) + '</span><span class="chip ' + st.cls + '">' + esc(st.label.en) + '</span></summary>' +
@@ -386,6 +416,8 @@ function panelChecks(){
 /* ---------------- render ---------------- */
 function renderTop(){ var s = document.getElementById('phStatus'); if (s) s.innerHTML = statusLine(); }
 function render(){
+  // keep what a student is typing on the register screen if the screen redraws (for example when the network comes back)
+  if (S.reg && S.reg.step === 'roll') { var tr = document.getElementById('regRoll'), tn = document.getElementById('regName'); if (tr) S.reg.roll = tr.value; if (tn) S.reg.name = tn.value; }
   var root = document.getElementById('root');
   root.classList.toggle('lang-en', S.lang === 'en'); root.classList.toggle('lang-ta', S.lang === 'ta');
   document.documentElement.lang = S.lang === 'en' ? 'en' : 'ta';
@@ -413,8 +445,9 @@ function scrollTop(){ var b = document.getElementById('phBody'); b.scrollTop = 0
 function go(screen){ S.screen = screen; render(); if (screen !== 'discover') scrollTop(); }
 // After every change, queue what the teacher may see (progress and one blocker) if it changed. Only Kavya's roll syncs in this demo.
 function queueProgress(){
-  if (S.who !== 'kavya' || !S.user) return;
-  enqueue(ROLL, progressOf(S.answers, S.path, S.plan, S.done, S.profile));
+  var roll = rollOf(S.who);
+  if (!roll || !S.user) return;
+  enqueue(roll, progressOf(S.answers, S.path, S.plan, S.done, S.profile));
 }
 
 /* ---------------- voice ---------------- */
@@ -450,31 +483,58 @@ function finishRecording(){
   });
 }
 
+/* ---------------- profiles on this phone ---------------- */
+function openProfile(who){
+  var rec = who === 'kavya' ? null : joinedStudent(who);
+  S.user = who === 'kavya' ? 'Kavya' : (rec && rec.name) || 'Roll ' + who.slice(4);
+  S.greet = who === 'kavya' ? L('காவ்யா', 'Kavya') : rec && rec.name ? L(rec.name, rec.name) : null;
+  S.answers = {}; S.profile = blankProfile(); S.path = null; S.plan = null; S.done = {}; S.pin = []; S.reg = null; resetVoice();
+  go(restoreStudent(rollOf(who)) || 'discover');
+  if (S.screen === 'discover' && qIndex() < QUESTIONS.length) playClips(qIndex() === 0 ? ['greeting', 'q_' + QUESTIONS[0].id] : ['q_' + QUESTIONS[qIndex()].id]);
+}
+function registerRoll(){
+  var R = S.reg, r = document.getElementById('regRoll'), nm = document.getElementById('regName');
+  R.roll = r ? r.value.trim() : R.roll; R.name = nm ? nm.value.trim().slice(0, 24) : R.name;
+  var num = /^\d{1,2}$/.test(R.roll) ? +R.roll : 0;
+  if (num < 1 || num > 99) { R.msg = L('1 முதல் 99 வரை உள்ள உன் ரோல் எண்ணை உள்ளிடு.', 'Enter your roll number, from 1 to 99.'); render(); return; }
+  var roll = '10B-' + String(num).padStart(2, '0');
+  if (roll === KAVYA_ROLL || joinedStudent(roll)) { R.msg = L('ரோல் ' + roll.slice(4) + '-க்கு இந்த போனில் ஏற்கனவே சுயவிவரம் உள்ளது.', 'Roll ' + roll.slice(4) + ' already has a profile on this phone.'); render(); return; }
+  R.roll = roll; R.step = 'pin'; R.msg = null; S.pin = []; render();
+}
+function finishRegister(){
+  var R = S.reg, pin = S.pin.slice();
+  store('op.students', joined().concat([{ roll:R.roll, name:R.name || null, pin:pin }]));
+  var names = pin.map(function(k){ return PIN_NAME[k]; });
+  S.who = R.roll;
+  openProfile(R.roll);
+  toast(L('உன் படக் குறியீடு: ' + names.map(function(x){ return x.ta; }).join(', ') + '. நினைவில் வை.', 'Your picture PIN is ' + names.map(function(x){ return x.en; }).join(', ') + '. Remember it.'));
+}
+
 /* ---------------- events ---------------- */
 document.addEventListener('click', function(ev){
   var el = ev.target.closest('[data-act]'); if (!el) return;
   if (el.dataset.act === 'close-sheet' && ev.target.closest('[data-stop]') && !ev.target.closest('button')) return;
   var a = el.dataset.act;
   if (a === 'who') {
-    if (el.dataset.id === 'new') { S.who = 'new'; S.user = 'New student'; S.userTa = null; S.answers = {}; S.profile = blankProfile(); S.path = null; S.plan = null; S.done = {}; resetVoice(); go('discover'); return; }
+    if (el.dataset.id === 'new') { S.who = 'new'; S.reg = { step:'roll', roll:'', name:'', msg:null }; S.pin = []; S.pinMsg = null; render(); return; }
     S.who = el.dataset.id; S.pin = []; S.pinMsg = null; render(); return;
   }
-  if (a === 'who-back') { S.who = null; S.pin = []; S.pinMsg = null; render(); return; }
+  if (a === 'who-back') { S.who = null; S.reg = null; S.pin = []; S.pinMsg = null; render(); return; }
+  if (a === 'reg-next') { registerRoll(); return; }
+  if (a === 'reg-back') { S.reg.step = 'roll'; S.reg.msg = null; S.pin = []; render(); return; }
   if (a === 'pin') {
     S.pin.push(el.dataset.id); S.pinMsg = null;
     if (S.pin.length === 3) {
-      var ok = PIN_CODE[S.who] && PIN_CODE[S.who].join() === S.pin.join();
+      if (S.who === 'new') { finishRegister(); return; }
+      var want = pinOf(S.who), ok = want && want.join() === S.pin.join();
       if (!ok) { S.pin = []; S.pinMsg = L('சரியில்லை. மீண்டும் முயற்சி செய்.','Not quite. Try again.'); render(); return; }
       if (S.who === 'anbu') { S.who = null; S.pin = []; render(); toast(L('அன்புவின் சுயவிவரம் திறந்தது. காவ்யாவின் பதில்கள் அவருக்குத் தெரியாது. இந்த டெமோவுக்கு காவ்யாவைப் பயன்படுத்து.', 'Anbu’s profile opened. Kavya’s answers stay hidden from him. For this demo, use Kavya.')); return; }
-      S.user = 'Kavya'; S.userTa = 'காவ்யா'; S.answers = {}; S.profile = blankProfile(); S.path = null; S.plan = null; S.done = {}; S.pin = []; resetVoice();
-      var screen = restoreStudent() || 'discover';
-      go(screen);
-      if (S.screen === 'discover' && qIndex() < QUESTIONS.length) playClips(qIndex() === 0 ? ['greeting', 'q_' + QUESTIONS[0].id] : ['q_' + QUESTIONS[qIndex()].id]);
+      openProfile(S.who);
       return;
     }
     render(); return;
   }
-  if (a === 'lock') { cancelRecording(); stopClips(); resetVoice(); S.screen = 'lock'; S.who = null; S.user = null; S.pin = []; S.sheet = null; render(); return; }
+  if (a === 'lock') { cancelRecording(); stopClips(); resetVoice(); S.screen = 'lock'; S.who = null; S.user = null; S.greet = null; S.reg = null; S.pin = []; S.sheet = null; render(); return; }
   if (a === 'lang') { S.lang = S.lang === 'en' ? 'bi' : 'en'; store('op.lang', S.lang); render(); return; }
   if (a === 'setlang') { S.lang = el.dataset.v; store('op.lang', S.lang); render(); return; }
   if (a === 'ans') { answer(el.dataset.q, el.dataset.o); return; }
@@ -505,6 +565,7 @@ document.addEventListener('click', function(ev){
   if (a === 'reset') {
     cancelRecording(); stopClips(); resetVoice();
     try { Object.keys(localStorage).forEach(function(k){ if (k.indexOf('op.state.') === 0) localStorage.removeItem(k); }); } catch (e) {}
+    store('op.students', null);
     clearQueue();
     S = freshState(); render(); toast(L('டெமோ மீட்டமைக்கப்பட்டது.', 'Demo reset.')); return;
   }

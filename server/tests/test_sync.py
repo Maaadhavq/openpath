@@ -26,7 +26,7 @@ def test_roster_seed(client):
     assert [s["roll"] for s in j["students"]] == sorted(s["roll"] for s in j["students"])
     k = row(client)
     assert k == {"roll": "10B-07", "name": "Kavya S", "step": "discover", "path": None, "path_name": None, "plan_done": None,
-                 "blocker": "no_path_yet", "live": True, "last_event_at": None}
+                 "blocker": "no_path_yet", "live": True, "new": False, "last_event_at": None}
     a = row(client, "10B-01")
     assert a["plan_done"] == "5/8" and a["blocker"] == "bank_account_aadhaar" and a["path_name"]["en"] == "Nurse" and a["live"] is False
     assert row(client, "10B-04")["blocker"] == "no_path_yet" and row(client, "10B-16")["blocker"] == "community_certificate"
@@ -62,8 +62,29 @@ def test_sync_rejects_bad_values(client, field, value):
     assert client.post("/api/sync", json={"events": [event(**{field: value})]}).status_code == 422
 
 
-def test_sync_rejects_unknown_roll_and_big_batches(client):
-    assert client.post("/api/sync", json={"events": [event(student="10B-99")]}).status_code == 422
+def test_new_roll_number_becomes_a_new_row(client):
+    ev = event(student="10B-26", path="copa", plan_done="2/7", blocker="income_certificate")
+    assert client.post("/api/sync", json={"events": [ev]}).json()["accepted"] == [ev["event_id"]]
+    j = client.get("/api/class").json()
+    assert len(j["students"]) == 26 and j["students"][-1]["roll"] == "10B-26"
+    n = row(client, "10B-26")
+    assert n["name"] == "New student" and n["new"] is True and n["live"] is True
+    assert n["path_name"]["en"] == "Computer operator" and n["plan_done"] == "2/7" and n["blocker"] == "income_certificate"
+    # a roll already on the roster keeps its name from the roster
+    client.post("/api/sync", json={"events": [event(student="10B-04", path="solar", plan_done="0/7", blocker=None)]})
+    r4 = row(client, "10B-04")
+    assert r4["name"] == "Ravi P" and r4["new"] is False and r4["live"] is True and r4["path"] == "solar"
+    # reset takes the class back to the 25 on the roster
+    client.post("/api/reset", headers={"X-Demo-Passcode": PASSCODE})
+    assert len(client.get("/api/class").json()["students"]) == 25
+
+
+@pytest.mark.parametrize("roll", ["10B-00", "10B-100", "10A-26", "10B-7", "11B-26"])
+def test_sync_rejects_bad_roll_numbers(client, roll):
+    assert client.post("/api/sync", json={"events": [event(student=roll)]}).status_code == 422
+
+
+def test_sync_rejects_big_batches(client):
     assert client.post("/api/sync", json={"events": [event() for _ in range(51)]}).status_code == 422
 
 

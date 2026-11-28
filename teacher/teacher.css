@@ -41,6 +41,7 @@ tr.live td{background:var(--green-tint);transition:background-color 1.2s ease-ou
 tr.live.flash td{background:var(--ochre-tint);transition:none}
 @media (prefers-reduced-motion: reduce){ tr.live td{transition:none} }
 .livetag{font-weight:600;color:var(--green);margin-left:6px}
+.newtag{font-weight:600;color:var(--ochre);margin-left:6px}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
 .box{background:var(--surface);border-radius:12px;padding:14px 16px}
 .box summary,.box-h{margin:0;font-weight:700;cursor:pointer}

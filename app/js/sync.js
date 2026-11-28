@@ -1,9 +1,11 @@
 // Offline sync queue. Holds progress snapshots in localStorage (op.queue) and sends them to /api/sync when online.
-// An event carries only the roll number, step, path, plan progress and one blocker: never the profile or answers.
+// An event carries only the roll number, step, path, plan progress and one blocker: never the profile, answers or name.
+// Sends: right after a change, at start, when the network comes back, when the app returns to the foreground,
+// every 15 s, and after a failure at 2, 4 and 8 s (the radio often needs a few seconds after airplane mode goes off).
 const QUEUE = 'op.queue', LAST = 'op.lastQueued', AT = 'op.syncedAt';
 const FIELDS = ['step', 'path', 'plan_done', 'blocker'];
 let onChange = function(){};
-let failed = false, sending = false, timer = null;
+let failed = false, sending = false, timer = null, retry = null, fails = 0;
 
 function load(k, d){ try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
 function save(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -15,8 +17,10 @@ function uuid(){
 
 export function initSync(opts){
   onChange = (opts && opts.onChange) || onChange;
-  window.addEventListener('online', function(){ failed = false; flush(); });
+  window.addEventListener('online', function(){ failed = false; fails = 0; flush(); });
   window.addEventListener('offline', function(){ onChange(); });
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') flush(); });
+  window.addEventListener('pageshow', function(){ flush(); });
   if (timer) clearInterval(timer);
   timer = setInterval(function(){ if (navigator.onLine !== false) flush(); }, 15000);
   flush();
@@ -42,13 +46,19 @@ export function syncedAt(){
 export function netFailed(){ return failed; }
 export function clearQueue(){ save(QUEUE, null); save(LAST, null); save(AT, null); onChange(); }
 
+function retrySoon(){
+  if (retry) return;
+  var wait = Math.min(15000, 2000 * Math.pow(2, Math.max(0, fails - 1)));
+  retry = setTimeout(function(){ retry = null; flush(); }, wait);
+}
+
 export function flush(){
   if (sending || navigator.onLine === false) return Promise.resolve();
   var q = load(QUEUE, []);
   if (!q.length) return Promise.resolve();
   sending = true;
-  var batch = q.slice(0, 50);
-  return fetch('/api/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: batch }) })
+  var batch = q.slice(0, 50), ctl = new AbortController(), stop = setTimeout(function(){ ctl.abort(); }, 30000);
+  return fetch('/api/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: batch }), signal: ctl.signal })
     .then(function(r){
       if (r.status === 422) { console.warn('sync: the server rejected a batch; dropping it'); return { accepted: batch.map(function(e){ return e.event_id; }), duplicates: [] }; }
       if (!r.ok) throw new Error('sync ' + r.status);
@@ -58,10 +68,13 @@ export function flush(){
       var gone = new Set((j.accepted || []).concat(j.duplicates || []));
       save(QUEUE, load(QUEUE, []).filter(function(e){ return !gone.has(e.event_id); }));
       save(AT, new Date().toISOString());
-      failed = false;
-    }, function(){ failed = true; })
+      failed = false; fails = 0;
+      if (retry) { clearTimeout(retry); retry = null; }
+    }, function(){ failed = true; fails++; })
     .then(function(){
+      clearTimeout(stop);
       sending = false; onChange();
-      if (!failed && queueCount() && navigator.onLine !== false) return flush();
+      if (failed) { if (navigator.onLine !== false) retrySoon(); return; }
+      if (queueCount() && navigator.onLine !== false) return flush();
     });
 }

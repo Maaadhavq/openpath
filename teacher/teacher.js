@@ -38,7 +38,7 @@
       var changed = last && s.live && prevLive[s.roll] !== undefined && prevLive[s.roll] !== key(s);
       var t = s.last_event_at ? hms(new Date(s.last_event_at)) : '–';
       return '<tr data-roll="' + esc(s.roll) + '"' + (s.live ? ' class="live' + (changed ? ' flash' : '') + '"' : '') + '>' +
-        '<td>' + esc(s.name) + (s.live ? '<span class="livetag">(live)</span>' : '') + '</td>' +
+        '<td>' + esc(s.name) + (s.new ? '<span class="newtag">(new)</span>' : '') + (s.live ? '<span class="livetag">(live)</span>' : '') + '<span class="ta">' + esc(s.roll) + '</span></td>' +
         '<td>' + (s.path_name ? esc(s.path_name.en) + '<span class="ta">' + esc(s.path_name.ta) + '</span>' : 'Not chosen') + '</td>' +
         '<td>' + esc(progress(s)) + '</td>' +
         '<td' + (s.blocker ? ' class="blk"' : '') + '>' + (s.blocker ? esc(BLOCKER[s.blocker] || s.blocker) : '–') + '</td>' +

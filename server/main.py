@@ -150,9 +150,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/sync")
     async def api_sync(body: SyncBody):
-        unknown = sorted({e.student for e in body.events if not store.knows(e.student)})
-        if unknown:
-            return error(422, "unknown_student", students=unknown)
         accepted, duplicates = store.apply(body.events)
         log.info("sync accepted=%d duplicates=%d", len(accepted), len(duplicates))
         return {"accepted": accepted, "duplicates": duplicates}

@@ -45,17 +45,23 @@ class ClassStore:
         for roll, name, pid, done, blk in CLASSMATES:
             rows[roll] = {"roll": roll, "name": name, "step": "plan" if pid else "discover", "path": pid, "path_name": _path_name(pid),
                           "plan_done": f"{done}/8" if pid else None, "blocker": BLOCKER_KEY.get(blk) if blk else None,
-                          "live": False, "last_event_at": None}
+                          "live": False, "new": False, "last_event_at": None}
         rows["10B-07"] = {"roll": "10B-07", "name": "Kavya S", "step": "discover", "path": None, "path_name": None, "plan_done": None,
-                          "blocker": "no_path_yet", "live": True, "last_event_at": None}
+                          "blocker": "no_path_yet", "live": True, "new": False, "last_event_at": None}
         self.rows = dict(sorted(rows.items()))
         self.latest: dict[str, datetime] = {}
         self.seen: set[str] = set()
         self.last_event: dict | None = None
         self.updated_at = _now()
 
-    def knows(self, roll: str) -> bool:
-        return roll in self.rows
+    def _row(self, roll: str) -> dict:
+        """A roll number that is not on the roster is a student new to the class list: add a row for them.
+        The phone never sends a name, so the teacher sees 'New student' and the roll number."""
+        if roll not in self.rows:
+            self.rows[roll] = {"roll": roll, "name": "New student", "step": "discover", "path": None, "path_name": None, "plan_done": None,
+                               "blocker": "no_path_yet", "live": True, "new": True, "last_event_at": None}
+            self.rows = dict(sorted(self.rows.items()))
+        return self.rows[roll]
 
     def apply(self, events: list[SyncEvent]) -> tuple[list[str], list[str]]:
         accepted, duplicates = [], []
@@ -72,7 +78,7 @@ class ClassStore:
             if prev is not None and ev.ts <= prev:
                 continue                       # an older snapshot arrived late: the latest ts wins
             self.latest[ev.student] = ev.ts
-            row = self.rows[ev.student]
+            row = self._row(ev.student)
             row.update(step=ev.step, path=ev.path, path_name=_path_name(ev.path), plan_done=ev.plan_done, blocker=ev.blocker,
                        live=True, last_event_at=_iso(ev.ts))
         if accepted:

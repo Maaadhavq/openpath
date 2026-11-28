@@ -1,10 +1,10 @@
 // Offline sync queue. Holds progress snapshots in localStorage (op.queue) and sends them to /api/sync when online.
-// An event carries only the roll number, step, path, plan progress, one blocker and, for a student who joined on the phone,
-// her first name: never the profile or answers.
+// An event carries only the roll number, step, path, plan progress (overall and per week), the kind of next step, one
+// blocker and, for a student who joined on the phone, her first name: never the profile or answers.
 // Sends: right after a change, at start, when the network comes back, when the app returns to the foreground,
 // every 15 s, and after a failure at 2, 4 and 8 s (the radio often needs a few seconds after airplane mode goes off).
 const QUEUE = 'op.queue', LAST = 'op.lastQueued', AT = 'op.syncedAt';
-const FIELDS = ['step', 'path', 'plan_done', 'blocker', 'name'];
+const FIELDS = ['step', 'path', 'plan_done', 'blocker', 'weeks', 'next_task', 'name'];
 let onChange = function(){};
 let failed = false, sending = false, timer = null, retry = null, fails = 0;
 
@@ -29,13 +29,16 @@ export function initSync(opts){
 
 // Adds a snapshot unless it is the same as the last one queued.
 export function enqueue(student, progress, name){
-  var p = { step: progress.step, path: progress.path, plan_done: progress.plan_done, blocker: progress.blocker, name: name || null };
+  var p = { step: progress.step, path: progress.path, plan_done: progress.plan_done, blocker: progress.blocker,
+    weeks: progress.weeks || null, next_task: progress.next_task || null, name: name || null };
   var last = load(LAST, null);
-  if (last && last.student === student && FIELDS.every(function(k){ return (last[k] == null ? null : last[k]) === p[k]; })) return false;
+  if (last && last.student === student && FIELDS.every(function(k){ return JSON.stringify(last[k] == null ? null : last[k]) === JSON.stringify(p[k]); })) return false;
   var ev = { event_id: uuid(), student: student, ts: new Date().toISOString(), step: p.step, path: p.path, plan_done: p.plan_done, blocker: p.blocker };
+  if (p.weeks) ev.weeks = p.weeks;
+  if (p.next_task) ev.next_task = p.next_task;
   if (p.name) ev.name = p.name;
   var q = load(QUEUE, []); q.push(ev); save(QUEUE, q);
-  save(LAST, { student: student, step: p.step, path: p.path, plan_done: p.plan_done, blocker: p.blocker, name: p.name });
+  save(LAST, { student: student, step: p.step, path: p.path, plan_done: p.plan_done, blocker: p.blocker, weeks: p.weeks, next_task: p.next_task, name: p.name });
   onChange();
   if (navigator.onLine !== false && !sending) setTimeout(flush, 0);   // send right away when online, so the teacher view stays live
   return true;

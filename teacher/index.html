@@ -3,43 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenPath teacher view</title>
-<meta name="description" content="Class 10-B progress, live from the students' phones. No community, income or gender.">
+<title>OpenPath for teachers</title>
+<meta name="description" content="Class 10-B: who chose a path, who needs help and what to do this week. Only what students' phones share.">
+<meta name="theme-color" content="#1e6b52">
 <link rel="icon" href="/icons/icon-192.png" type="image/png">
 <link rel="stylesheet" href="teacher.css">
 <script src="teacher.js" defer></script>
 </head>
 <body>
-<main class="wrap">
-  <header class="head">
-    <div>
-      <h1>Class 10-B <span class="ta">வகுப்பு 10-B</span></h1>
-      <p class="note" id="school">Government Higher Secondary School (sample) · progress and blockers, live from the phones</p>
+
+<div id="signin" class="signin" hidden>
+  <form id="signinForm" class="signin-box">
+    <p class="brand">OpenPath <span>for teachers</span></p>
+    <h1>Class 10-B <span class="ta">வகுப்பு 10-B</span></h1>
+    <label class="label" for="code">Class code <span class="ta">வகுப்புக் குறியீடு</span></label>
+    <input id="code" class="inp" inputmode="numeric" autocomplete="off" required>
+    <p class="warn" id="signinMsg" role="alert" hidden></p>
+    <button class="btn primary" type="submit">Open the class</button>
+    <p class="note">Only what students' phones share appears here: progress, the path they chose and one blocker. Community, income, gender and their answers stay on their phones.</p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-left">
+      <p class="brand">OpenPath <span>for teachers</span></p>
+      <p class="cls"><b>Class 10-B</b> <span class="ta">வகுப்பு 10-B</span> · <span id="school">Government Higher Secondary School (sample)</span></p>
     </div>
-    <div class="actions">
-      <span class="note" id="updated" aria-live="polite">Connecting…</span>
+    <div class="top-right">
+      <span id="updated" class="muted" aria-live="polite">Connecting…</span>
       <button class="btn quiet" id="reset" type="button">Reset demo</button>
+      <button class="btn quiet" id="signout" type="button">Sign out</button>
     </div>
   </header>
-  <p class="notice" id="notice" hidden></p>
-  <section class="figs" id="figs" aria-label="Summary"></section>
-  <p class="help" id="help"></p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Student</th><th>Path <span class="ta">பாதை</span></th><th>Progress</th><th>Blocker</th><th>Updated</th></tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-  <section class="cols">
-    <details class="box" id="sent" open>
-      <summary>What the phone sent</summary>
-      <pre id="lastEvent">Nothing yet.</pre>
-    </details>
-    <div class="box">
-      <p class="box-h">What never leaves the phone</p>
-      <p class="never">Community, family income, gender, the documents she holds, her answers and her voice recording. A student who joins on the phone sends her first name. Her voice answer is sent only to be turned into text, and is not stored. Teachers see progress and the one blocker they can help with.</p>
-    </div>
-  </section>
-</main>
+  <p class="notice" id="notice" role="status" hidden></p>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="t-overview" data-tab="overview" aria-selected="true">Overview <span class="ta">சுருக்கம்</span></button>
+    <button role="tab" id="t-students" data-tab="students" aria-selected="false">Students <span class="ta">மாணவர்கள்</span></button>
+    <button role="tab" id="t-actions" data-tab="actions" aria-selected="false">Actions <span class="ta">செய்ய வேண்டியவை</span></button>
+    <button role="tab" id="t-ask" data-tab="ask" aria-selected="false">Ask OpenPath <span class="ta">கேள்</span></button>
+  </nav>
+
+  <main>
+    <section id="v-overview" class="view" role="tabpanel" aria-labelledby="t-overview"></section>
+
+    <section id="v-students" class="view" role="tabpanel" aria-labelledby="t-students" hidden>
+      <div class="toolbar">
+        <input id="search" class="inp" type="search" placeholder="Search a name or roll number" aria-label="Search students">
+        <div class="seg" id="filters" role="group" aria-label="Show"></div>
+        <label class="sortlabel">Sort <select id="sort" class="inp">
+          <option value="roll">Roll number</option><option value="name">Name</option><option value="progress">Progress</option><option value="active">Last active</option>
+        </select></label>
+      </div>
+      <div id="studentList"></div>
+    </section>
+
+    <section id="v-actions" class="view" role="tabpanel" aria-labelledby="t-actions" hidden></section>
+
+    <section id="v-ask" class="view" role="tabpanel" aria-labelledby="t-ask" hidden>
+      <div class="ask">
+        <p class="note">Ask about your class, documents or schemes. Answers use only what phones share and the scheme notes. OpenPath never decides who is eligible; each student's phone checks that.</p>
+        <div class="suggest" id="suggest"></div>
+        <div id="chat" class="chat" aria-live="polite"></div>
+        <form id="askForm" class="askbar">
+          <select id="askLang" class="inp" aria-label="Answer language"><option value="en">English</option><option value="ta">தமிழ்</option></select>
+          <input id="askInput" class="inp" maxlength="500" autocomplete="off" placeholder="For example: who needs help this week?" aria-label="Your question">
+          <button class="btn primary" type="submit">Ask</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="drawerBg" class="drawer-bg" hidden></div>
+  <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Student" hidden></aside>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
 </body>
 </html>

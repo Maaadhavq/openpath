@@ -61,11 +61,12 @@ async def transcribe(client: httpx.AsyncClient, settings: Settings, wav: bytes, 
 
 
 async def chat(client: httpx.AsyncClient, settings: Settings, messages: list[dict], max_tokens: int = 300,
-               timeout: float = CHAT_TIMEOUT) -> tuple[str, dict]:
+               timeout: float = CHAT_TIMEOUT, json_mode: bool = True) -> tuple[str, dict]:
     global _chat_extras_ok
     body = {"model": settings.llm_model, "messages": messages, "temperature": 0.2, "max_tokens": max_tokens}
     if _chat_extras_ok:
-        body["response_format"] = {"type": "json_object"}
+        if json_mode:
+            body["response_format"] = {"type": "json_object"}
         body["reasoning_effort"] = None          # sarvam-105b reasons by default; None turns it off for speed
     r = await _post(client, settings, "/v1/chat/completions", timeout, json=body)
     if r.status_code in (400, 422) and _chat_extras_ok and ("response_format" in r.text or "reasoning_effort" in r.text):

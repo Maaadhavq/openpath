@@ -1,0 +1,90 @@
+{
+  "_note": "Teacher guidance, written by the team. Document names and where to get them come from kb.json (the phone's engine).",
+  "blockers": {
+    "bank_account_aadhaar": {
+      "doc": "bank",
+      "label": { "ta": "ஆதாருடன் இணைந்த வங்கிக் கணக்கு", "en": "Bank account (Aadhaar)" },
+      "need": { "ta": "வங்கிக் கணக்கு தேவை", "en": ["needs a bank account", "need a bank account"] },
+      "action": {
+        "ta": "வங்கி நாள் நடத்து: இந்த மாணவர்களைப் பெற்றோருடனும் ஆதார் அட்டையுடனும் அஞ்சலகத்துக்கு (இந்திய அஞ்சல் பணப்பரிவர்த்தனை வங்கி, IPPB) அல்லது அருகிலுள்ள வங்கிக்கு அழைத்துச் செல்.",
+        "en": "Hold a bank day: take these students, with a parent and their Aadhaar card, to the post office (India Post Payments Bank) or the nearest bank."
+      },
+      "parent": {
+        "ta": "அன்புள்ள பெற்றோரே, உங்கள் பிள்ளைக்கு ஆதாருடன் இணைந்த வங்கிக் கணக்கை அஞ்சலகம் (IPPB) அல்லது அருகிலுள்ள வங்கியில் தொடங்குங்கள். பல உதவித்தொகைகளுக்கு இது தேவை. — வகுப்பு ஆசிரியர், 10-B",
+        "en": "Dear parent, please open a bank account linked to Aadhaar for your child at the post office (IPPB) or a nearby bank. Many scholarships need one. — Class teacher, 10-B"
+      }
+    },
+    "income_certificate": {
+      "doc": "income",
+      "label": { "ta": "வருமானச் சான்றிதழ்", "en": "Income certificate" },
+      "need": { "ta": "வருமானச் சான்றிதழ் தேவை", "en": ["needs an income certificate", "need an income certificate"] },
+      "action": {
+        "ta": "இந்தக் குடும்பங்கள் இ-சேவை மையத்தில் வருமானச் சான்றிதழுக்கு விண்ணப்பிக்க உதவு. வட்டாட்சியர் அலுவலகம் சான்றிதழ் வழங்கும்.",
+        "en": "Help these families apply for an income certificate at the e-Sevai centre. The taluk office issues it."
+      },
+      "parent": {
+        "ta": "அன்புள்ள பெற்றோரே, உங்கள் பிள்ளையின் உதவித்தொகை விண்ணப்பத்துக்கு வருமானச் சான்றிதழ் தேவைப்படலாம். அருகிலுள்ள இ-சேவை மையத்தில் விண்ணப்பியுங்கள். — வகுப்பு ஆசிரியர், 10-B",
+        "en": "Dear parent, your child's scholarship application may need an income certificate. Please apply at the nearest e-Sevai centre. — Class teacher, 10-B"
+      }
+    },
+    "community_certificate": {
+      "doc": "community",
+      "label": { "ta": "சாதிச் சான்றிதழ்", "en": "Community certificate" },
+      "need": { "ta": "சாதிச் சான்றிதழ் தேவை", "en": ["needs a community certificate", "need a community certificate"] },
+      "action": {
+        "ta": "இந்தக் குடும்பங்கள் இ-சேவை மையத்தில் சாதிச் சான்றிதழுக்கு விண்ணப்பிக்க உதவு. வட்டாட்சியர் அலுவலகம் சான்றிதழ் வழங்கும்.",
+        "en": "Help these families apply for a community certificate at the e-Sevai centre. The taluk office issues it."
+      },
+      "parent": {
+        "ta": "அன்புள்ள பெற்றோரே, உங்கள் பிள்ளையின் உதவித்தொகை விண்ணப்பத்துக்கு சாதிச் சான்றிதழ் தேவைப்படலாம். அருகிலுள்ள இ-சேவை மையத்தில் விண்ணப்பியுங்கள். — வகுப்பு ஆசிரியர், 10-B",
+        "en": "Dear parent, your child's scholarship application may need a community certificate. Please apply at the nearest e-Sevai centre. — Class teacher, 10-B"
+      }
+    },
+    "aadhaar": {
+      "doc": "aadhaar",
+      "label": { "ta": "ஆதார் புதுப்பிப்பு", "en": "Aadhaar update" },
+      "need": { "ta": "ஆதார் உதவி தேவை", "en": ["needs an Aadhaar update", "need an Aadhaar update"] },
+      "action": {
+        "ta": "அருகிலுள்ள ஆதார் அல்லது இ-சேவை மையத்தில் ஆதார் பதிவு அல்லது புதுப்பிப்புக்கு இவர்களுக்கு உதவு.",
+        "en": "Help these students get Aadhaar made or updated at the nearest Aadhaar or e-Sevai centre."
+      },
+      "parent": {
+        "ta": "அன்புள்ள பெற்றோரே, உங்கள் பிள்ளையின் ஆதார் அட்டையை அருகிலுள்ள ஆதார் அல்லது இ-சேவை மையத்தில் பதிவு செய்யுங்கள் அல்லது புதுப்பியுங்கள். — வகுப்பு ஆசிரியர், 10-B",
+        "en": "Dear parent, please get your child's Aadhaar made or updated at the nearest Aadhaar or e-Sevai centre. — Class teacher, 10-B"
+      }
+    },
+    "no_path_yet": {
+      "doc": null,
+      "label": { "ta": "பாதை இன்னும் இல்லை", "en": "No path yet" },
+      "need": { "ta": "பாதை இன்னும் இல்லை", "en": ["has no path yet", "have no path yet"] },
+      "action": {
+        "ta": "இந்த மாணவர்களுடன் 10 நிமிடம் அமர்ந்து, போனில் \"கண்டறி\" பகுதியை ஒன்றாகச் செய்.",
+        "en": "Sit with these students for 10 minutes and go through Discover together on the phone."
+      },
+      "parent": {
+        "ta": "அன்புள்ள பெற்றோரே, OpenPath செயலியில் மூன்று சிறு கேள்விகளுக்குப் பதில் சொல்லி, தனக்குப் பொருந்தும் பாதைகளைப் பார்க்க உங்கள் பிள்ளைக்கு உதவுங்கள். — வகுப்பு ஆசிரியர், 10-B",
+        "en": "Dear parent, please help your child answer three short questions in the OpenPath app to see the paths that fit them. — Class teacher, 10-B"
+      }
+    }
+  },
+  "status": {
+    "not_started": { "ta": "இன்னும் தொடங்கவில்லை", "en": "Not started" },
+    "inactive": { "ta": "7 நாளுக்கு மேல் திறக்கவில்லை", "en": "Not active for 7+ days" },
+    "needs_help": { "ta": "உதவி தேவை", "en": "Needs help" },
+    "on_track": { "ta": "சரியாகப் போகிறது", "en": "On track" },
+    "done": { "ta": "திட்டம் முடிந்தது", "en": "Plan done" }
+  },
+  "start_steps": {
+    "discover": { "ta": "கண்டறி: மூன்று சிறு கேள்விகளுக்குப் பதில் சொல்", "en": "Discover: answer the three short questions" },
+    "paths": { "ta": "ஒரு பாதையைத் தேர்ந்தெடு", "en": "Choose a path" }
+  },
+  "documents_step": { "ta": "தேவையான ஆவணங்களைத் தயார் செய்", "en": "Get the needed documents ready" },
+  "shared": {
+    "ta": ["ரோல் எண்", "முதல் பெயர் (போனில் சேர்ந்த மாணவர்கள்)", "தேர்ந்தெடுத்த பாதை", "ஒவ்வொரு வாரமும் முடித்த திட்டப் படிகள்", "அடுத்த படியின் வகை", "ஒரு தடை (எ.கா. வங்கிக் கணக்கு)", "கடைசியாகத் திறந்த நேரம்"],
+    "en": ["Roll number", "First name (students who joined on the phone)", "Chosen path", "Plan steps done each week", "Kind of next step", "One blocker (for example, a bank account)", "When the app was last used"]
+  },
+  "never": {
+    "ta": "பாலினம், சமூகம், குடும்ப வருமானம், உள்ள ஆவணங்கள், மதிப்பெண்கள், அவளுடைய பதில்கள், உதவித்தொகைத் தகுதி, குரல் பதிவு",
+    "en": "Gender, community, family income, the documents she holds, marks, her answers, scheme eligibility, and her voice recording"
+  }
+}

@@ -15,9 +15,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.datastructures import UploadFile
 from starlette.formparsers import MultiPartParser
 
-from . import talk
+from . import ask, talk
 from .config import APP_DIR, TEACHER_DIR, VERSION, Settings, load_settings
-from .schemas import SyncBody
+from .schemas import AskBody, SyncBody
 from .store import ClassStore
 
 # Windows can map .js to text/plain, which breaks module scripts. Set the types we serve explicitly.
@@ -77,16 +77,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="OpenPath", version=VERSION, docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.settings = settings
     limiter = RateLimiter(settings.talk_per_minute)
+    ask_limiter = RateLimiter(30)
+    wrong_codes = RateLimiter(20)              # at most 20 wrong teacher codes a minute per address
     store = ClassStore()
     app.state.store = store
+    teacher_code = settings.teacher_code or settings.demo_passcode
 
     def passcode_ok(request: Request) -> bool:
         given = request.headers.get("x-demo-passcode", "")
         return bool(settings.demo_passcode) and hmac.compare_digest(given.encode(), settings.demo_passcode.encode())
 
+    def teacher_ok(request: Request) -> bool:
+        given = request.headers.get("x-teacher-code", "")
+        return bool(teacher_code) and hmac.compare_digest(given.encode(), teacher_code.encode())
+
+    def teacher_guard(request: Request) -> JSONResponse | None:
+        """The teacher pages show student names, so they need the class code."""
+        if not teacher_code:
+            return error(503, "teacher_code_not_set", detail="Set TEACHER_CODE (or DEMO_PASSCODE) on the server.")
+        if teacher_ok(request):
+            return None
+        if not wrong_codes.allow(client_ip(request)):
+            return error(429, "rate_limited")
+        return error(401, "bad_teacher_code")
+
     @app.get("/api/health")
     def health():
         return {"ok": True, "version": VERSION, "fake": settings.fake_sarvam,
+                "passcode_set": bool(settings.demo_passcode), "teacher_code_set": bool(teacher_code),
                 "models": {"stt": settings.stt_model, "llm": settings.llm_model, "tts": settings.tts_model}}
 
     @app.post("/api/talk")
@@ -155,12 +173,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"accepted": accepted, "duplicates": duplicates}
 
     @app.get("/api/class")
-    async def api_class():
-        return JSONResponse(store.snapshot(), headers={"Cache-Control": "no-store"})
+    async def api_class(request: Request):
+        if (denied := teacher_guard(request)) is not None:
+            return denied
+        snap = store.snapshot()
+        snap["suggestions"] = ask.SUGGESTIONS
+        return JSONResponse(snap, headers={"Cache-Control": "no-store"})
+
+    @app.get("/api/student/{roll}")
+    async def api_student(roll: str, request: Request):
+        if (denied := teacher_guard(request)) is not None:
+            return denied
+        d = store.detail(roll)
+        if d is None:
+            return error(404, "unknown_student")
+        return JSONResponse(d, headers={"Cache-Control": "no-store"})
+
+    @app.post("/api/ask")
+    async def api_ask(body: AskBody, request: Request):
+        if (denied := teacher_guard(request)) is not None:
+            return denied
+        if not ask_limiter.allow(client_ip(request)):
+            return error(429, "rate_limited")
+        students = store.students()
+        return await ask.answer(getattr(request.app.state, "http", None), settings, body.question, body.lang, students, store.summary(students))
 
     @app.post("/api/reset")
     async def api_reset(request: Request):
-        if not passcode_ok(request):
+        if not (passcode_ok(request) or teacher_ok(request)):
             return error(401, "bad_passcode")
         store.reset()
         log.info("reset: class store re-seeded")

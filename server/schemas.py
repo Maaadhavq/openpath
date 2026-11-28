@@ -13,6 +13,8 @@ from .config import DATA_DIR
 Step = Literal["discover", "paths", "plan"]
 Blocker = Literal["no_path_yet", "bank_account_aadhaar", "income_certificate", "community_certificate", "aadhaar"]
 PlanDone = Annotated[str, StringConstraints(pattern=r"^\d{1,2}/\d{1,2}$")]
+Weeks = Annotated[list[PlanDone], Field(min_length=1, max_length=6)]   # done/total per plan week, e.g. ["2/2", "1/3"]
+NextTask = Literal["lesson", "stories", "practice", "documents", "visit", "decide"]     # the kind of next step, never which document
 # A new student's first name, typed on the phone: letters in any script and spaces, no markup or control characters.
 FirstName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=24, pattern=r"^[^\x00-\x1f<>&{}\[\]\\]+$")]
 
@@ -34,6 +36,8 @@ class SyncEvent(BaseModel):
     plan_done: PlanDone | None
     blocker: Blocker | None
     name: FirstName | None = None          # sent only for students who joined on the phone
+    weeks: Weeks | None = None
+    next_task: NextTask | None = None
 
     @field_validator("path")
     @classmethod
@@ -52,3 +56,10 @@ class SyncBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     events: Annotated[list[SyncEvent], Field(max_length=50)]
+
+
+class AskBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
+    lang: Literal["en", "ta"] = "en"

@@ -361,8 +361,28 @@ function sheetSettings(){
     '<span class="h3">' + bi(STR.settings) + '</span>' +
     '<div class="field"><span class="label">' + bi(STR.language) + '</span><div class="seg">' + langs.map(function(x){ return '<button data-act="setlang" data-v="' + x[0] + '" aria-pressed="' + (S.lang === x[0]) + '">' + bi(x[1]) + '</button>'; }).join('') + '</div></div>' +
     '<div class="field"><label class="label" for="passcode">' + bi(STR.passcode) + '</label><div class="row"><input class="inp" id="passcode" inputmode="numeric" autocomplete="off" value="' + esc(recall('op.passcode') || '') + '"><button class="btn" data-act="save-passcode">' + bi(STR.save) + '</button></div></div>' +
+    '<button class="btn quiet" data-act="open-shared">' + bi(STR.teacherSees) + '</button>' +
     '<div class="row"><button class="btn quiet" data-act="open-checks">' + bi(STR.checks) + '</button><button class="btn quiet" data-act="reset">' + bi(STR.resetDemo) + '</button></div>' +
     '<p class="note"><span class="inline">' + bi(STR.version) + '</span>: ' + (APP_VERSION ? esc(APP_VERSION) : bi(STR.notInstalled)) + '</p>' +
+    '<button class="btn" data-act="close-sheet">' + bi(STR.close) + '</button></div></div>';
+}
+// Exactly what this student's phone sends to her teacher, built from the same function the sync queue uses.
+function sheetShared(){
+  var roll = rollOf(S.who), rows = '';
+  if (roll && S.user) {
+    var p = progressOf(S.answers, S.path, S.plan, S.done, S.profile), rec = S.who === 'kavya' ? null : joinedStudent(S.who), path = currentPath();
+    var item = function(label, value){ return '<div class="doc"><b>' + bi(label) + '</b><span>' + value + '</span></div>'; };
+    rows = item(STR.fRoll, esc(roll)) +
+      (rec && rec.name ? item(STR.fName, esc(rec.name)) : '') +
+      item(STR.fPath, path ? bi(path.name) : bi(STR.none)) +
+      item(STR.fPlan, p.plan_done ? esc(p.plan_done) : '–') +
+      item(STR.fWeeks, p.weeks ? esc(p.weeks.join(' · ')) : '–') +
+      item(STR.fNext, p.next_task ? bi(STR.kinds[p.next_task]) : '–') +
+      item(STR.fBlocker, p.blocker ? bi(STR.blockers[p.blocker]) : bi(STR.none));
+  } else rows = '<p class="note">' + bi(STR.signInFirst) + '</p>';
+  return '<div class="sheet-bg" data-act="close-sheet"><div class="sheet" data-stop="1" role="dialog" aria-label="What your teacher sees">' +
+    '<span class="h3">' + bi(STR.teacherSees) + '</span><p class="note">' + bi(STR.teacherSeesNote) + '</p>' + rows +
+    '<p class="label"><b>' + bi(STR.neverLeaves) + '</b></p><p class="note">' + bi(STR.neverList) + '</p>' +
     '<button class="btn" data-act="close-sheet">' + bi(STR.close) + '</button></div></div>';
 }
 function phNav(){
@@ -432,7 +452,7 @@ function render(){
   var nav = document.getElementById('phNav'); nav.hidden = S.screen === 'lock'; nav.innerHTML = S.screen === 'lock' ? '' : phNav();
   var sheet = document.getElementById('sheet'), typed = document.getElementById('passcode');
   var keep = typed ? typed.value : null;
-  sheet.innerHTML = S.sheet === 'settings' ? sheetSettings() : S.sheet ? sheetReady(S.sheet) : '';
+  sheet.innerHTML = S.sheet === 'settings' ? sheetSettings() : S.sheet === 'shared' ? sheetShared() : S.sheet ? sheetReady(S.sheet) : '';
   if (keep != null && document.getElementById('passcode')) document.getElementById('passcode').value = keep;
   var tabs = [['rules','How it decides'], ['checks','Checks']];
   document.getElementById('tabs').innerHTML = tabs.map(function(t){ return '<button role="tab" data-act="panel" data-id="' + t[0] + '" aria-selected="' + (S.panel === t[0]) + '">' + t[1] + '</button>'; }).join('') +
@@ -559,6 +579,7 @@ document.addEventListener('click', function(ev){
   if (a === 'reroute') { reroute(); return; }
   if (a === 'ready') { S.sheet = el.dataset.id; render(); return; }
   if (a === 'settings') { S.sheet = 'settings'; render(); return; }
+  if (a === 'open-shared') { S.sheet = 'shared'; render(); return; }
   if (a === 'save-passcode') { var inp = document.getElementById('passcode'); store('op.passcode', inp && inp.value.trim() ? inp.value.trim() : null); toast(STR.saved); return; }
   if (a === 'open-checks') { S.sheet = null; if (narrow()) { S.prevScreen = S.screen === 'checks' ? S.prevScreen : S.screen; go('checks'); } else { S.panel = 'checks'; render(); } return; }
   if (a === 'checks-back') { go(S.prevScreen || 'lock'); return; }

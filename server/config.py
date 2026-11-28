@@ -29,6 +29,7 @@ def _load_dotenv(path: Path) -> None:
 class Settings:
     sarvam_api_key: str = ""
     demo_passcode: str = ""
+    teacher_code: str = ""          # falls back to demo_passcode
     fake_sarvam: bool = False
     stt_model: str = "saaras:v4"
     stt_mode: str = "transcribe"
@@ -48,6 +49,7 @@ def load_settings() -> Settings:
     return Settings(
         sarvam_api_key=env("SARVAM_API_KEY", ""),
         demo_passcode=env("DEMO_PASSCODE", ""),
+        teacher_code=env("TEACHER_CODE", ""),
         fake_sarvam=env("FAKE_SARVAM", "0").strip() in ("1", "true", "yes"),
         stt_model=env("STT_MODEL", "saaras:v4"),
         stt_mode=env("STT_MODE", "transcribe"),

@@ -5,13 +5,14 @@ import json
 
 import httpx
 
-from helpers import PASSCODE, kavya_to_plan, open_app
+from helpers import PASSCODE, TEACHER, kavya_to_plan, open_app, open_teacher
 
 ALLOWED = {"event_id", "student", "ts", "step", "path", "plan_done", "blocker"}
+OPTIONAL = {"weeks", "next_task", "name"}      # weekly progress, the kind of next step, a new student's first name
 
 
 def kavya_row(server):
-    return next(s for s in httpx.get(server + "/api/class").json()["students"] if s["roll"] == "10B-07")
+    return next(s for s in httpx.get(server + "/api/class", headers=TEACHER).json()["students"] if s["roll"] == "10B-07")
 
 
 def test_offline_queue_then_sync_to_teacher(page, context, server, shot):
@@ -19,9 +20,8 @@ def test_offline_queue_then_sync_to_teacher(page, context, server, shot):
     bodies = []
     page.on("request", lambda r: bodies.append(r.post_data) if r.url.endswith("/api/sync") else None)
     teacher = context.new_page()
-    teacher.goto(server + "/teacher/")
-    teacher.wait_for_selector("tr[data-roll='10B-07']")
-    assert teacher.locator("#rows tr").count() == 25
+    open_teacher(teacher, server, "students")
+    assert teacher.locator("#studentList tbody tr").count() == 25
     assert "No path yet" in teacher.inner_text("tr[data-roll='10B-07']")
 
     open_app(page, server)
@@ -47,8 +47,11 @@ def test_offline_queue_then_sync_to_teacher(page, context, server, shot):
     teacher.wait_for_function("document.querySelector(\"tr[data-roll='10B-07']\").innerText.includes('1/7')", timeout=8000)
     t = teacher.inner_text("tr[data-roll='10B-07']")
     assert "Lab technician" in t and "Bank account" in t and "(live)" in t
+    teacher.click("[data-tab=overview]")
     sent = json.loads(teacher.inner_text("#lastEvent"))
-    assert set(sent) == ALLOWED and sent["plan_done"] == "1/7"
+    assert ALLOWED <= set(sent) <= ALLOWED | {"weeks", "next_task"} and sent["plan_done"] == "1/7"
+    assert sent["weeks"] == ["1/2", "0/3", "0/1", "0/1"] and sent["next_task"] == "stories"     # ticked the lesson; stories next
+    teacher.click("[data-tab=students]")
     teacher.set_viewport_size({"width": 1280, "height": 800})
     shot(teacher, "laptop-teacher")
     # every sync request carried only the allowed keys: no profile, no answers
@@ -57,7 +60,7 @@ def test_offline_queue_then_sync_to_teacher(page, context, server, shot):
         payload = json.loads(b)
         assert set(payload) == {"events"}
         for ev in payload["events"]:
-            assert set(ev) == ALLOWED and ev["student"] == "10B-07"
+            assert ALLOWED <= set(ev) <= ALLOWED | {"weeks", "next_task"} and ev["student"] == "10B-07"
     for word in ("MBC", "girl", "community", "income", "gender", "1to2.5", "accounts\"", "science"):
         assert all(word not in b for b in bodies)
 
@@ -70,9 +73,8 @@ def test_new_student_filled_in_offline_reaches_the_teacher(page, context, browse
     page.on("request", lambda r: bodies.append(r.post_data) if r.url.endswith("/api/sync") else None)
     laptop = browser.new_context(viewport={"width": 1280, "height": 800})
     teacher = laptop.new_page()
-    teacher.goto(server + "/teacher/")
-    teacher.wait_for_selector("tr[data-roll='10B-07']")
-    assert teacher.locator("#rows tr").count() == 25
+    open_teacher(teacher, server, "students")
+    assert teacher.locator("#studentList tbody tr").count() == 25
 
     open_app(page, server)
     context.set_offline(True)
@@ -108,17 +110,17 @@ def test_new_student_filled_in_offline_reaches_the_teacher(page, context, browse
     page.check("input[data-act=task][data-id=t1]")
     page.wait_for_function("document.getElementById('phStatus').innerText.includes('updates waiting')")
     shot(page, "laptop-new-student-offline")
-    assert all(s["roll"] != "10B-26" for s in httpx.get(server + "/api/class").json()["students"])   # nothing sent yet
+    assert all(s["roll"] != "10B-26" for s in httpx.get(server + "/api/class", headers=TEACHER).json()["students"])   # nothing sent yet
 
     context.set_offline(False)
     page.wait_for_function("document.getElementById('phStatus').innerText.includes('Synced')", timeout=15000)
-    row = next(s for s in httpx.get(server + "/api/class").json()["students"] if s["roll"] == "10B-26")
+    row = next(s for s in httpx.get(server + "/api/class", headers=TEACHER).json()["students"] if s["roll"] == "10B-26")
     assert row["name"] == "Meena" and row["new"] is True and row["live"] is True
     assert row["path"] == pid and row["plan_done"] == f"1/{total}"
     teacher.wait_for_selector("tr[data-roll='10B-26']", timeout=8000)
     t = teacher.inner_text("tr[data-roll='10B-26']")
     assert "Meena" in t and "(new)" in t and "10B-26" in t and f"1/{total}" in t
-    assert teacher.locator("#rows tr").count() == 26
+    assert teacher.locator("#studentList tbody tr").count() == 26
     teacher.locator("tr[data-roll='10B-26']").scroll_into_view_if_needed()
     shot(teacher, "laptop-teacher-new-student")
 
@@ -127,7 +129,7 @@ def test_new_student_filled_in_offline_reaches_the_teacher(page, context, browse
     for b in bodies:
         assert "girl" not in b and "BC" not in b and "lt1" not in b
         for ev in json.loads(b)["events"]:
-            assert set(ev) == ALLOWED | {"name"} and ev["name"] == "Meena"
+            assert ALLOWED | {"name"} <= set(ev) <= ALLOWED | OPTIONAL and ev["name"] == "Meena"
     assert any(ev["student"] == "10B-26" for b in bodies for ev in json.loads(b)["events"])
 
     # her profile is saved on the phone behind her picture PIN

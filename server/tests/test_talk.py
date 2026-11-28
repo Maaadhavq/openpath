@@ -179,7 +179,7 @@ def test_fake_mode(fake_client):
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"ok": True, "version": "2026-11-28", "fake": False,
+    assert client.get("/api/health").json() == {"ok": True, "version": "2026-11-28", "fake": False, "passcode_set": True, "teacher_code_set": True,
                                                  "models": {"stt": "saaras:v4", "llm": "sarvam-105b", "tts": "bulbul:v4-flash"}}
 
 

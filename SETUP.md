@@ -13,7 +13,8 @@ Render dashboard → openpath → **Environment** → add:
 
 | Key | Value |
 |---|---|
-| `DEMO_PASSCODE` | a 6-digit code; share it with the team only |
+| `DEMO_PASSCODE` | a 6-digit code; share it with the team only. It also opens the teacher page unless `TEACHER_CODE` is set |
+| `TEACHER_CODE` | optional: a separate class code for the teacher page |
 | `SARVAM_API_KEY` | the key from the Sarvam dashboard (when it arrives) |
 | `FAKE_SARVAM` | change to `0` once the key is in (it is `1` now: the app shows "(simulated voice)") |
 
@@ -34,8 +35,9 @@ After every new deploy, open the app **twice** to get the new version. If it sti
 
 ## 3. The teacher laptop
 
-1. Open the teacher dashboard link. It refreshes every 3 seconds and keeps the free server awake.
-2. **Reset demo** (top right) asks for the demo passcode once and puts the class back to the 25 sample students.
+1. Open the teacher dashboard link and enter the class code (`TEACHER_CODE`, or the demo passcode). It refreshes every 3 seconds and keeps the free server awake.
+2. Tabs: **Overview** (figures, this week's blockers, live activity from phones, paths chosen, coming up, what the phone sent), **Students** (search, filters, click a student for details), **Actions** (one card per blocker, with a parent message to copy and a print view) and **Ask OpenPath**.
+3. **Reset demo** (top right) puts the class back to the 25 sample students.
 
 The free server sleeps after 15 minutes without visits and takes about a minute to wake. Open the dashboard at least 15 minutes before presenting.
 

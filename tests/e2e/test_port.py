@@ -39,7 +39,8 @@ COMPUTE = r"""
       const S = api.getS(); S.answers = st.answers; S.path = st.path; S.plan = plan; S.done = done; S.profile = st.profile;
       const p = api.syncPayload(); delete p.synced_at; delete p.student; return JSON.stringify(p);
     }
-    return JSON.stringify(api.progressOf(st.answers, st.path, plan, done, st.profile));
+    const r = api.progressOf(st.answers, st.path, plan, done, st.profile);   // the prototype's four fields
+    return JSON.stringify({ step: r.step, path: r.path, plan_done: r.plan_done, blocker: r.blocker });
   });
   return out;
 }

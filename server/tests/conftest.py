@@ -32,7 +32,8 @@ def settings(**kw) -> Settings:
 
 @pytest.fixture()
 def client():
-    with TestClient(create_app(settings())) as c:
+    # The teacher endpoints need the class code; it falls back to the demo passcode.
+    with TestClient(create_app(settings()), headers={"X-Teacher-Code": PASSCODE}) as c:
         yield c
 
 

@@ -5,6 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PASSCODE = "246810"
+TEACHER = {"X-Teacher-Code": PASSCODE}     # the teacher code falls back to the demo passcode
 SHOTS = ROOT / "test-results"
 FAKE_WAV = Path(__file__).resolve().parent / "kavya_home.wav"
 
@@ -32,3 +33,14 @@ def kavya_to_plan(page, path_id: str = "labtech"):
     page.click("[data-act=go][data-s=paths]")
     page.click(f"[data-act=choose][data-id={path_id}]")
     page.wait_for_selector("#planDone")
+
+
+def open_teacher(page, base: str, tab: str | None = None):
+    """Signs in to the teacher page with the class code and opens a tab."""
+    page.add_init_script(f"localStorage.setItem('op.teacher.code', '{PASSCODE}')")
+    page.goto(base + "/teacher/")
+    page.wait_for_selector("#v-overview .figs")
+    if tab:
+        page.click(f"[data-tab={tab}]")
+        if tab == "students":
+            page.wait_for_selector("#studentList tbody tr")

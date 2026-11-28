@@ -25,8 +25,9 @@ def test_roster_seed(client):
     assert len(j["students"]) == 25
     assert [s["roll"] for s in j["students"]] == sorted(s["roll"] for s in j["students"])
     k = row(client)
-    assert k == {"roll": "10B-07", "name": "Kavya S", "step": "discover", "path": None, "path_name": None, "plan_done": None,
-                 "blocker": "no_path_yet", "live": True, "new": False, "last_event_at": None}
+    want = {"roll": "10B-07", "name": "Kavya S", "step": "discover", "path": None, "path_name": None, "plan_done": None,
+            "blocker": "no_path_yet", "live": True, "new": False, "last_event_at": None, "status": "not_started"}
+    assert {key: k[key] for key in want} == want
     a = row(client, "10B-01")
     assert a["plan_done"] == "5/8" and a["blocker"] == "bank_account_aadhaar" and a["path_name"]["en"] == "Nurse" and a["live"] is False
     assert row(client, "10B-04")["blocker"] == "no_path_yet" and row(client, "10B-16")["blocker"] == "community_certificate"
@@ -109,8 +110,8 @@ def test_latest_ts_wins(client):
 
 def test_reset_needs_the_passcode_and_reseeds(client):
     client.post("/api/sync", json={"events": [event()]})
-    assert client.post("/api/reset").status_code == 401
-    assert client.post("/api/reset", headers={"X-Demo-Passcode": "nope"}).status_code == 401
+    assert client.post("/api/reset", headers={"X-Teacher-Code": ""}).status_code == 401
+    assert client.post("/api/reset", headers={"X-Demo-Passcode": "nope", "X-Teacher-Code": "nope"}).status_code == 401
     assert row(client)["path"] == "labtech"
     assert client.post("/api/reset", headers={"X-Demo-Passcode": PASSCODE}).json() == {"ok": True}
     k = row(client)

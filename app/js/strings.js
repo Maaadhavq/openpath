@@ -43,5 +43,19 @@ export const STR = {
   notInstalled: L('இன்னும் நிறுவப்படவில்லை', 'not installed yet'),
   close: L('மூடு', 'Close'),
   back: L('பின் செல்', 'Back'),
-  noAudio: L('இந்த வரிக்கு இன்னும் ஒலி இல்லை. உரை திரையில் உள்ளது.', 'No recorded voice for this line yet. The text is on screen.')
+  noAudio: L('இந்த வரிக்கு இன்னும் ஒலி இல்லை. உரை திரையில் உள்ளது.', 'No recorded voice for this line yet. The text is on screen.'),
+
+  teacherSees: L('உன் ஆசிரியர் பார்ப்பது', 'What your teacher sees'),
+  teacherSeesNote: L('உன் போன் இவற்றை மட்டுமே உன் வகுப்பு ஆசிரியருக்கு அனுப்புகிறது.', 'Your phone sends only these to your class teacher.'),
+  neverLeaves: L('இந்த போனை விட்டு ஒருபோதும் வெளியே போகாதவை', 'Never leaves this phone'),
+  neverList: L('பாலினம், சமூகம், குடும்ப வருமானம், உன்னிடம் உள்ள ஆவணங்கள், மதிப்பெண்கள், உன் பதில்கள், உதவித்தொகைத் தகுதி, உன் குரல் பதிவு. (குரல் உரையாக மாற்ற மட்டுமே அனுப்பப்படுகிறது; சேமிக்கப்படுவதில்லை.)',
+    'Gender, community, family income, the documents you have, marks, your answers, scheme eligibility and your voice recording. (Your voice is sent only to be turned into text, and is not stored.)'),
+  fRoll: L('ரோல் எண்', 'Roll number'), fName: L('முதல் பெயர்', 'First name'), fPath: L('பாதை', 'Path'),
+  fPlan: L('திட்டம்', 'Plan'), fWeeks: L('ஒவ்வொரு வாரமும்', 'Week by week'), fNext: L('அடுத்த படியின் வகை', 'Kind of next step'),
+  fBlocker: L('ஒரு தடை', 'One blocker'), none: L('இல்லை', 'None'),
+  signInFirst: L('உன் சுயவிவரத்தைத் திறந்தால், அனுப்பப்படும் சரியான விவரங்கள் இங்கே தெரியும்.', 'Open your profile to see exactly what is sent.'),
+  kinds: { lesson: L('பாடம்', 'Lesson'), stories: L('கதைகள்', 'Stories'), practice: L('பயிற்சி', 'Practice'), documents: L('ஆவணம்', 'Documents'),
+    visit: L('பார்வை', 'Visit'), decide: L('முடிவு', 'Decision') },
+  blockers: { bank_account_aadhaar: L('ஆதாருடன் இணைந்த வங்கிக் கணக்கு', 'Bank account (Aadhaar)'), income_certificate: L('வருமானச் சான்றிதழ்', 'Income certificate'),
+    community_certificate: L('சாதிச் சான்றிதழ்', 'Community certificate'), aadhaar: L('ஆதார் புதுப்பிப்பு', 'Aadhaar update'), no_path_yet: L('பாதை இன்னும் இல்லை', 'No path yet') }
 };

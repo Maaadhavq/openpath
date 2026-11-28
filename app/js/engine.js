@@ -269,5 +269,15 @@ export function progressOf(answers, pathId, plan, done, profile){
   var step = !answered ? 'discover' : !path ? 'paths' : 'plan';
   var blocker = !path ? 'no_path_yet' : miss[0] === 'bank' ? 'bank_account_aadhaar' : miss[0] ? miss[0] + '_certificate' : null;
   if (miss[0] === 'aadhaar') blocker = 'aadhaar';
-  return { step:step, path:path ? path.id : null, plan_done:plan ? n + '/' + all.length : null, blocker:blocker };
+  // Also shared: steps done per week, and the kind of the next open step (never which document it is).
+  var weeks = plan ? plan.map(function(w){ return w.filter(function(t){ return done[t.id]; }).length + '/' + w.length; }) : null;
+  var open = all.filter(function(t){ return !done[t.id]; })[0];
+  return { step:step, path:path ? path.id : null, plan_done:plan ? n + '/' + all.length : null, blocker:blocker,
+    weeks:weeks, next_task:open ? taskKind(open.id, all.length) : null };
+}
+// makePlan numbers its steps t1..tN in this order: lesson, stories, practice, the document steps, visit, decide.
+// The number stays with the step when "Missed a step?" moves it to a later week.
+export function taskKind(id, total){
+  var k = +String(id).slice(1);
+  return k === 1 ? 'lesson' : k === 2 ? 'stories' : k === 3 ? 'practice' : k === total ? 'decide' : k === total - 1 ? 'visit' : 'documents';
 }

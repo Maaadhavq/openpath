@@ -124,7 +124,7 @@
       fig(m.chose_path + ' of ' + m.total, 'chose a path', 'பாதை தேர்ந்தெடுத்தனர்') +
       fig(m.on_track, 'on track or done', 'சரியாகப் போகின்றனர்') +
       fig(m.need_help, 'need help with a document', 'ஆவண உதவி தேவை', m.need_help > 0) +
-      fig(m.inactive, 'not active for 7+ days', '7 நாளுக்கு மேல் திறக்கவில்லை', m.inactive > 0) + '</div>';
+      fig(m.inactive, 'no update for 7+ days', '7 நாளுக்கு மேல் புதுப்பிப்பு இல்லை', m.inactive > 0) + '</div>';
     h += '<div class="grid2"><section class="box"><div class="box-head"><h2>This week <span class="ta">இந்த வாரம்</span></h2><button class="btn link" data-goto="actions">All actions</button></div>' +
       (m.groups.length ? m.groups.map(function(g){
         return '<div class="group"><b>' + esc(needWords(g)) + ' <span class="ta">' + esc(needTa(g)) + '</span></b>' +
@@ -147,7 +147,7 @@
   }
 
   /* ---------------- students ---------------- */
-  var FILTERS = [['all', 'All'], ['needs_help', 'Needs help'], ['not_started', 'Not started'], ['inactive', 'Not active 7+ days'], ['done', 'Plan done'], ['new', 'New']];
+  var FILTERS = [['all', 'All'], ['needs_help', 'Needs help'], ['not_started', 'Not started'], ['inactive', 'No update 7+ days'], ['done', 'Plan done'], ['new', 'New']];
   function matches(s){
     var f = S.filter;
     if (f === 'needs_help' && !(s.blocker && s.blocker !== 'no_path_yet')) return false;
@@ -167,14 +167,14 @@
       active: function(a, b){ return (a.days_since_active == null ? 1e9 : a.days_since_active) - (b.days_since_active == null ? 1e9 : b.days_since_active); } }[S.sort];
     list.sort(by);
     if (!list.length) { $('studentList').innerHTML = '<div class="tbl"><p class="empty">No students match.</p></div>'; return; }
-    $('studentList').innerHTML = '<div class="tbl"><table><thead><tr><th>Student</th><th>Path</th><th>Progress</th><th>Status</th><th>Blocker</th><th>Last active</th></tr></thead><tbody>' +
+    $('studentList').innerHTML = '<div class="tbl"><table><thead><tr><th>Student</th><th>Path</th><th>Progress</th><th>Status</th><th>Blocker</th><th>Last update</th></tr></thead><tbody>' +
       list.map(function(s){
         var st = label(s.status), blk = s.blocker ? blockerLabel(s.blocker) : null;
         return '<tr data-roll="' + esc(s.roll) + '" tabindex="0"' + (s.live ? ' class="live' + (S.flash[s.roll] ? ' flash' : '') + '"' : '') + '>' +
           '<td><b>' + esc(s.name) + '</b>' + (s.new ? '<span class="tag-new">(new)</span>' : '') + (s.live ? '<span class="tag-live">(live)</span>' : '') + '<span class="ta">' + esc(s.roll) + '</span></td>' +
           '<td class="c-path">' + (s.path_name ? bi(s.path_name) : '<span class="muted">Not chosen</span>') + '</td>' +
           '<td class="c-prog">' + (s.total ? '<div class="prog"><span class="barline"><i style="width:' + s.progress_pct + '%"></i></span><span class="small">Plan ' + s.done + '/' + s.total + '</span></div>' : '<span class="muted">' + (s.step === 'paths' ? 'Choosing a path' : 'Discover') + '</span>') + '</td>' +
-          '<td class="st st-' + s.status + '">' + esc(s.status === 'inactive' ? 'Not active ' + s.days_since_active + ' days' : st.en) + '</td>' +
+          '<td class="st st-' + s.status + '">' + esc(s.status === 'inactive' ? 'No update for ' + s.days_since_active + ' days' : st.en) + '</td>' +
           '<td' + (blk && s.blocker !== 'no_path_yet' ? ' class="blk"' : '') + '>' + (blk ? esc(blk.en) : '–') + '</td>' +
           '<td class="time">' + ago(s.last_event_at) + '</td></tr>';
       }).join('') + '</tbody></table></div>';
@@ -192,7 +192,7 @@
   }
   function renderDrawer(d){
     var st = label(d.status);
-    var h = '<header><div><h2>' + esc(d.name) + '</h2><p class="muted">' + esc(d.roll) + (d.new ? ' · new on the phone' : '') + (d.live ? ' · live' : '') + ' · last active ' + ago(d.last_event_at) + '</p>' +
+    var h = '<header><div><h2>' + esc(d.name) + '</h2><p class="muted">' + esc(d.roll) + (d.new ? ' · new on the phone' : '') + (d.live ? ' · live' : '') + ' · last update ' + ago(d.last_event_at) + '</p>' +
       '<p class="st st-' + d.status + '">' + bi(st, true) + '</p></div><button class="btn quiet" id="closeDrawer" type="button">Close</button></header>';
     h += '<section><h3>Path <span class="ta">பாதை</span></h3>' + (d.path_name ? '<p><b>' + bi(d.path_name, true) + '</b></p><p class="note">' + bi(d.route) + '</p>' : '<p class="muted">Not chosen yet.</p>') + '</section>';
     h += '<section><h3>Plan <span class="ta">திட்டம்</span></h3>';

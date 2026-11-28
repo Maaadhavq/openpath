@@ -40,6 +40,7 @@ class Settings:
     log_level: str = "info"
     sarvam_base: str = "https://api.sarvam.ai"
     talk_per_minute: int = 20
+    sync_per_minute: int = 600
 
 
 def load_settings() -> Settings:
@@ -60,4 +61,5 @@ def load_settings() -> Settings:
         log_level=env("LOG_LEVEL", "info"),
         sarvam_base=env("SARVAM_BASE", "https://api.sarvam.ai").rstrip("/"),
         talk_per_minute=int(env("TALK_PER_MINUTE", "20")),
+        sync_per_minute=int(env("SYNC_PER_MINUTE", "600")),
     )

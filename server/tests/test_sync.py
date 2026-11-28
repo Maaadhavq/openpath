@@ -9,7 +9,7 @@ from server.tests.conftest import PASSCODE
 
 
 def event(**kw) -> dict:
-    ev = {"event_id": str(uuid.uuid4()), "student": "10B-07", "ts": "2026-11-30T11:12:00Z",
+    ev = {"event_id": str(uuid.uuid4()), "student": "10B-07", "ts": "2026-11-20T11:12:00Z",
           "step": "plan", "path": "labtech", "plan_done": "1/7", "blocker": "bank_account_aadhaar"}
     ev.update(kw)
     return ev
@@ -41,7 +41,7 @@ def test_sync_updates_the_live_row(client):
     assert r.status_code == 200 and r.json() == {"accepted": [ev["event_id"]], "duplicates": []}
     k = row(client)
     assert k["path"] == "labtech" and k["path_name"] == {"ta": "ஆய்வக தொழில்நுட்பர்", "en": "Lab technician"}
-    assert k["plan_done"] == "1/7" and k["blocker"] == "bank_account_aadhaar" and k["last_event_at"] == "2026-11-30T11:12:00Z"
+    assert k["plan_done"] == "1/7" and k["blocker"] == "bank_account_aadhaar" and k["last_event_at"] == "2026-11-20T11:12:00Z"
     assert client.get("/api/class").json()["last_event"]["event_id"] == ev["event_id"]
 
 
@@ -92,19 +92,19 @@ def test_sync_rejects_big_batches(client):
 def test_sync_is_idempotent(client):
     ev = event()
     client.post("/api/sync", json={"events": [ev]})
-    r = client.post("/api/sync", json={"events": [ev, event(plan_done="2/7", ts="2026-11-30T11:13:00Z")]})
+    r = client.post("/api/sync", json={"events": [ev, event(plan_done="2/7", ts="2026-11-20T11:13:00Z")]})
     j = r.json()
     assert j["duplicates"] == [ev["event_id"]] and len(j["accepted"]) == 1
     assert row(client)["plan_done"] == "2/7"
 
 
 def test_latest_ts_wins(client):
-    newer = event(plan_done="3/7", ts="2026-11-30T11:20:00Z")
-    older = event(plan_done="1/7", ts="2026-11-30T11:10:00Z")
+    newer = event(plan_done="3/7", ts="2026-11-20T11:20:00Z")
+    older = event(plan_done="1/7", ts="2026-11-20T11:10:00Z")
     client.post("/api/sync", json={"events": [newer]})
     client.post("/api/sync", json={"events": [older]})          # arrives late
     assert row(client)["plan_done"] == "3/7"
-    client.post("/api/sync", json={"events": [event(plan_done=None, path=None, step="paths", blocker="no_path_yet", ts="2026-11-30T11:21:00+05:30")]})
+    client.post("/api/sync", json={"events": [event(plan_done=None, path=None, step="paths", blocker="no_path_yet", ts="2026-11-20T11:21:00+05:30")]})
     assert row(client)["plan_done"] == "3/7"                    # 11:21 IST is 05:51 UTC, older than 11:20 UTC
 
 
@@ -129,7 +129,7 @@ def test_class_is_not_cached(client):
 def test_new_student_first_name(client):
     client.post("/api/sync", json={"events": [event(student="10B-30", name="  Meena ")]})
     assert row(client, "10B-30")["name"] == "Meena"
-    client.post("/api/sync", json={"events": [event(student="10B-30", ts="2026-11-30T11:20:00Z")]})     # later event without a name
+    client.post("/api/sync", json={"events": [event(student="10B-30", ts="2026-11-20T11:20:00Z")]})     # later event without a name
     assert row(client, "10B-30")["name"] == "New student"
     client.post("/api/sync", json={"events": [event(student="10B-01", name="Someone")]})              # roster rolls keep their name
     assert row(client, "10B-01")["name"] == "Anitha R"

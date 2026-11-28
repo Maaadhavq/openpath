@@ -70,6 +70,12 @@ PATH_KW = {
     "teacher": ["d.el.ed", "become a teacher", "teacher training"], "civil": ["civil"], "copa": ["computer operator", "copa"],
     "pharma": ["pharmacist", "pharmacy", "d.pharm"], "engineering": ["engineer", "engineering", "b.e."], "graphic": ["graphic"],
 }
+# Questions that try to list or count students by what OpenPath never stores.
+PROTECTED = ["sc", "st", "obc", "bc", "mbc", "dnc", "dnt", "caste", "community", "religion", "girl", "girls", "boy", "boys", "gender",
+             "income", "poor", "rich", "salary", "earn", "earns", "சாதி", "மதம்", "வருமான", "பெண்", "ஆண்", "ஏழை"]
+ASKS_WHO = ["which", "who", "list", "how many", "count", "show", "what is", "what's", "யார்", "எத்தனை", "பட்டியல்"]
+ABOUT_RULES = ["certificate", "scholarship", "scheme", "pudhumai", "penn", "pudhalvan", "yasasvi", "pragati", "csss", "quota",
+               "explain", "tell me about", "only for", "rule", "rules", "சான்றிதழ்", "உதவித்தொகை", "திட்டம்", "புதுமைப்"]
 KIND_KW = {"iti": ["iti"], "diploma": ["diploma", "polytechnic"], "degree": ["degree", "college"]}
 WHEN = {"entry": {"ta": "பட்டம், டிப்ளமோ அல்லது ITI-யில் சேரும்போது", "en": "when joining a degree, diploma or ITI"},
         "9-10": {"ta": "9, 10ஆம் வகுப்பில்", "en": "in Class 9 and 10"}, "11+": {"ta": "11ஆம் வகுப்பு முதல்", "en": "from Class 11"}}
@@ -138,8 +144,8 @@ def a_inactive(lang, students, summary):
     if not sel:
         return _t(lang, "எல்லோரும் கடந்த வாரத்தில் செயலியைத் திறந்துள்ளனர்.", "Everyone has used the app in the last week."), [], []
     who = ", ".join(f"{s['name']} ({s['roll']}, {s['days_since_active']} " + _t(lang, "நாள்", "days") + ")" for s in sel)
-    return (_t(lang, f"{len(sel)} மாணவர்கள் 7 நாளுக்கு மேல் OpenPath-ஐத் திறக்கவில்லை: {who}\n→ வகுப்பில் சிறு உரையாடல் நடத்து; செயலியைத் திறந்து ஒரு படியை முடிக்கச் சொல்.",
-               f"{len(sel)} students have not opened OpenPath for 7 days or more: {who}\n→ Have a quick word in class and ask each of them to open the app and finish one step."),
+    return (_t(lang, f"{len(sel)} மாணவர்களின் போனிலிருந்து 7 நாளுக்கு மேல் புதுப்பிப்பு இல்லை (இணையம் இல்லாமல் பயன்படுத்தியிருக்கலாம்): {who}\n→ வகுப்பில் சிறு உரையாடல் நடத்து; செயலியைத் திறந்து ஒரு படியை முடிக்கச் சொல். இணையம் கிடைத்ததும் புதுப்பிப்பு வரும்.",
+               f"{len(sel)} students have sent no update for 7 days or more (they may be working offline): {who}\n→ Have a quick word in class and ask each of them to open the app and finish one step; the update arrives when their phone has a signal."),
             _used(sel), [])
 
 
@@ -239,9 +245,18 @@ def a_eligible(lang, sids):
     return text, [], []
 
 
+def a_private(lang):
+    return (_t(lang,
+               "OpenPath ஒரு மாணவியின் சாதி, சமூகம், மதம், குடும்ப வருமானம் அல்லது பாலினத்தை ஒருபோதும் சேமிப்பதில்லை: அவை அவளுடைய போனிலேயே இருக்கும், உதவித்தொகை விதிகளையும் அவள் போனே தனிப்பட்ட முறையில் சரிபார்க்கிறது. அதனால் இவற்றை வைத்து மாணவர்களைப் பட்டியலிடவோ எண்ணவோ முடியாது. யாருக்கு ஆவணம் தேவை, யாருக்குப் பாதை இல்லை, ஒரு திட்டம் எப்படி வேலை செய்கிறது என்று சொல்ல முடியும்.",
+               "OpenPath never stores a student's caste, community, religion, family income or gender: they stay on her phone, and her phone checks scheme rules privately. So I can't list or count students by them. I can tell you who needs a document, who has no path yet, or how a scheme works."),
+            [], [])
+
+
 def rules_answer(q: str, lang: str, students: list[dict], summary: dict):
     """Returns (intent, text, used, sources) or None if no rule fits."""
     ql = q.lower()
+    if _has(ql, PROTECTED) and _has(ql, ASKS_WHO) and not _has(ql, ABOUT_RULES):
+        return ("private", *a_private(lang))
     sids = [sid for sid, words in SCHEME_KW.items() if _has(ql, words)]
     if "pre" in ql and "post" not in ql:
         sids = [s for s in sids if not s.endswith("_post")] or sids

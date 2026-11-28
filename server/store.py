@@ -38,6 +38,7 @@ DOC_BLOCKERS = BLOCKER_ORDER[:4]
 SEED_WEEKS = [2, 3, 2, 1]
 SEED_KINDS = ["lesson", "stories", "practice", "documents", "documents", "documents", "visit", "decide"]
 INACTIVE_DAYS = 7
+FUTURE_SLACK = timedelta(minutes=2)
 MAX_SEEN = 20_000
 
 
@@ -187,19 +188,21 @@ class ClassStore:
             self.seen.add(ev.event_id)
             accepted.append(ev.event_id)
             self.last_event = ev.model_dump(mode="json", exclude_unset=True)   # exactly the fields the phone sent
+            now = datetime.now(timezone.utc)
+            ts = ev.ts if ev.ts <= now + FUTURE_SLACK else now    # a phone clock set ahead must not freeze her row: use our time
             prev_ts = self.latest.get(ev.student)
-            if prev_ts is not None and ev.ts <= prev_ts:
+            if prev_ts is not None and ts <= prev_ts:
                 continue                       # an older snapshot arrived late: the latest ts wins
-            self.latest[ev.student] = ev.ts
+            self.latest[ev.student] = ts
             row, created = self._row(ev.student)
             before = None if created else dict(row)
             row.update(step=ev.step, path=ev.path, path_name=_path_name(ev.path), plan_done=ev.plan_done, blocker=ev.blocker,
-                       weeks=ev.weeks, next_task=ev.next_task, live=True, last_event_at=_iso(ev.ts))
+                       weeks=ev.weeks, next_task=ev.next_task, live=True, last_event_at=_iso(ts))
             if row["new"]:                     # roster students keep the roster name
                 row["name"] = ev.name or "New student"
             text = change_text(before, row)
             if text:
-                item = {"ts": _iso(ev.ts), "roll": row["roll"], "text": text}
+                item = {"ts": _iso(ts), "roll": row["roll"], "text": text}
                 self.history.setdefault(row["roll"], deque(maxlen=50)).append(item)
                 self.feed.append(item)
         if accepted:

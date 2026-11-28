@@ -78,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     limiter = RateLimiter(settings.talk_per_minute)
     ask_limiter = RateLimiter(30)
+    sync_limiter = RateLimiter(settings.sync_per_minute)
     wrong_codes = RateLimiter(20)              # at most 20 wrong teacher codes a minute per address
     store = ClassStore()
     app.state.store = store
@@ -167,7 +168,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return res
 
     @app.post("/api/sync")
-    async def api_sync(body: SyncBody):
+    async def api_sync(body: SyncBody, request: Request):
+        if not sync_limiter.allow(client_ip(request)):
+            return error(429, "rate_limited")        # the phone keeps the events and retries
         accepted, duplicates = store.apply(body.events)
         log.info("sync accepted=%d duplicates=%d", len(accepted), len(duplicates))
         return {"accepted": accepted, "duplicates": duplicates}

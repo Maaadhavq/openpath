@@ -16,7 +16,7 @@ from server.tests.conftest import PASSCODE, SARVAM, settings
 
 
 def event(**kw) -> dict:
-    ev = {"event_id": str(uuid.uuid4()), "student": "10B-07", "ts": "2026-11-30T11:12:00Z",
+    ev = {"event_id": str(uuid.uuid4()), "student": "10B-07", "ts": "2026-11-20T11:12:00Z",
           "step": "plan", "path": "labtech", "plan_done": "1/7", "blocker": "bank_account_aadhaar",
           "weeks": ["1/2", "0/3", "0/1", "0/1"], "next_task": "stories"}
     ev.update(kw)
@@ -84,7 +84,7 @@ def test_new_fields_flow_to_the_teacher(client):
     k = student(client)
     assert k["weeks"] == ["1/2", "0/3", "0/1", "0/1"] and k["next_task"] == "stories" and k["progress_pct"] == 14
     assert k["next_step"] == kb()["plan"]["labtech"]["stories"]
-    client.post("/api/sync", json={"events": [event(next_task="documents", ts="2026-11-30T11:13:00Z")]})
+    client.post("/api/sync", json={"events": [event(next_task="documents", ts="2026-11-20T11:13:00Z")]})
     assert student(client)["next_step"] == kb()["doc_tasks"]["bank"]                  # the blocker says which document
     assert student(client)["deadlines"] == kb()["decisions"]["labtech"]
 
@@ -97,10 +97,10 @@ def test_new_fields_are_validated(client, field, value):
 
 def test_feed_history_and_detail(client):
     client.post("/api/sync", json={"events": [event(step="discover", path=None, plan_done=None, blocker="no_path_yet", weeks=None,
-                                                    next_task=None, ts="2026-11-30T11:00:00Z")]})
+                                                    next_task=None, ts="2026-11-20T11:00:00Z")]})
     client.post("/api/sync", json={"events": [event(plan_done="0/7", weeks=["0/2", "0/3", "0/1", "0/1"], next_task="lesson",
-                                                    ts="2026-11-30T11:05:00Z")]})
-    client.post("/api/sync", json={"events": [event(ts="2026-11-30T11:10:00Z")]})
+                                                    ts="2026-11-20T11:05:00Z")]})
+    client.post("/api/sync", json={"events": [event(ts="2026-11-20T11:10:00Z")]})
     feed = client.get("/api/class").json()["feed"]
     assert feed[0]["text"]["en"] == "finished a plan step (1/7)" and feed[0]["name"] == "Kavya S"
     assert feed[1]["text"]["en"] == "chose Lab technician"

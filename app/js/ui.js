@@ -154,9 +154,11 @@ function scrLock(){
     '<div class="dots">' + [0, 1, 2].map(function(i){ return '<span class="dot ' + (S.pin.length > i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
     '<div class="pinpad">' + Object.keys(PIN_SVG).map(function(k){ return '<button class="pin" data-act="pin" data-id="' + k + '" aria-label="' + PIN_NAME[k].en + '">' + PIN_SVG[k] + '<span>' + esc(S.lang === 'en' ? PIN_NAME[k].en : PIN_NAME[k].ta) + '</span></button>'; }).join('') + '</div>' +
     (S.pinMsg ? '<p class="warn">' + bi(S.pinMsg) + '</p>' : '') +
+    (pinLocked() ? '<p class="warn">' + bi(L('பல முறை தவறு. 30 நொடிகள் காத்திரு.', 'Too many wrong tries. Wait 30 seconds.')) + '</p>' : '') +
     (S.who === 'kavya' ? '<p class="hint">Demo PIN for Kavya: sun, leaf, star</p>' : '') +
     '<button class="link" data-act="who-back">' + bi(L('வேறு நபர்','Someone else')) + '</button></div>';
 }
+function pinLocked(){ return !!(S.pinLockUntil && Date.now() < S.pinLockUntil); }
 function pinpad(){
   return '<div class="dots">' + [0, 1, 2].map(function(i){ return '<span class="dot ' + (S.pin.length > i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
     '<div class="pinpad">' + Object.keys(PIN_SVG).map(function(k){ return '<button class="pin" data-act="pin" data-id="' + k + '" aria-label="' + PIN_NAME[k].en + '">' + PIN_SVG[k] + '<span>' + esc(S.lang === 'en' ? PIN_NAME[k].en : PIN_NAME[k].ta) + '</span></button>'; }).join('') + '</div>';
@@ -546,11 +548,17 @@ document.addEventListener('click', function(ev){
   if (a === 'reg-next') { registerRoll(); return; }
   if (a === 'reg-back') { S.reg.step = 'roll'; S.reg.msg = null; S.pin = []; render(); return; }
   if (a === 'pin') {
+    if (pinLocked()) { render(); return; }
     S.pin.push(el.dataset.id); S.pinMsg = null;
     if (S.pin.length === 3) {
       if (S.who === 'new') { finishRegister(); return; }
       var want = pinOf(S.who), ok = want && want.join() === S.pin.join();
-      if (!ok) { S.pin = []; S.pinMsg = L('சரியில்லை. மீண்டும் முயற்சி செய்.','Not quite. Try again.'); render(); return; }
+      if (!ok) {
+        S.pin = []; S.pinFails = (S.pinFails || 0) + 1;
+        if (S.pinFails >= 5) { S.pinFails = 0; S.pinLockUntil = Date.now() + 30000; setTimeout(render, 30500); }
+        S.pinMsg = pinLocked() ? null : L('சரியில்லை. மீண்டும் முயற்சி செய்.','Not quite. Try again.'); render(); return;
+      }
+      S.pinFails = 0;
       if (S.who === 'anbu') { S.who = null; S.pin = []; render(); toast(L('அன்புவின் சுயவிவரம் திறந்தது. காவ்யாவின் பதில்கள் அவருக்குத் தெரியாது. இந்த டெமோவுக்கு காவ்யாவைப் பயன்படுத்து.', 'Anbu’s profile opened. Kavya’s answers stay hidden from him. For this demo, use Kavya.')); return; }
       openProfile(S.who);
       return;

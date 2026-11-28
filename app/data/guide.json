@@ -3,8 +3,17 @@
   "blockers": {
     "bank_account_aadhaar": {
       "doc": "bank",
-      "label": { "ta": "ஆதாருடன் இணைந்த வங்கிக் கணக்கு", "en": "Bank account (Aadhaar)" },
-      "need": { "ta": "வங்கிக் கணக்கு தேவை", "en": ["needs a bank account", "need a bank account"] },
+      "label": {
+        "ta": "ஆதாருடன் இணைந்த வங்கிக் கணக்கு",
+        "en": "Bank account (Aadhaar)"
+      },
+      "need": {
+        "ta": "வங்கிக் கணக்கு தேவை",
+        "en": [
+          "needs a bank account",
+          "need a bank account"
+        ]
+      },
       "action": {
         "ta": "வங்கி நாள் நடத்து: இந்த மாணவர்களைப் பெற்றோருடனும் ஆதார் அட்டையுடனும் அஞ்சலகத்துக்கு (இந்திய அஞ்சல் பணப்பரிவர்த்தனை வங்கி, IPPB) அல்லது அருகிலுள்ள வங்கிக்கு அழைத்துச் செல்.",
         "en": "Hold a bank day: take these students, with a parent and their Aadhaar card, to the post office (India Post Payments Bank) or the nearest bank."
@@ -16,8 +25,17 @@
     },
     "income_certificate": {
       "doc": "income",
-      "label": { "ta": "வருமானச் சான்றிதழ்", "en": "Income certificate" },
-      "need": { "ta": "வருமானச் சான்றிதழ் தேவை", "en": ["needs an income certificate", "need an income certificate"] },
+      "label": {
+        "ta": "வருமானச் சான்றிதழ்",
+        "en": "Income certificate"
+      },
+      "need": {
+        "ta": "வருமானச் சான்றிதழ் தேவை",
+        "en": [
+          "needs an income certificate",
+          "need an income certificate"
+        ]
+      },
       "action": {
         "ta": "இந்தக் குடும்பங்கள் இ-சேவை மையத்தில் வருமானச் சான்றிதழுக்கு விண்ணப்பிக்க உதவு. வட்டாட்சியர் அலுவலகம் சான்றிதழ் வழங்கும்.",
         "en": "Help these families apply for an income certificate at the e-Sevai centre. The taluk office issues it."
@@ -29,8 +47,17 @@
     },
     "community_certificate": {
       "doc": "community",
-      "label": { "ta": "சாதிச் சான்றிதழ்", "en": "Community certificate" },
-      "need": { "ta": "சாதிச் சான்றிதழ் தேவை", "en": ["needs a community certificate", "need a community certificate"] },
+      "label": {
+        "ta": "சாதிச் சான்றிதழ்",
+        "en": "Community certificate"
+      },
+      "need": {
+        "ta": "சாதிச் சான்றிதழ் தேவை",
+        "en": [
+          "needs a community certificate",
+          "need a community certificate"
+        ]
+      },
       "action": {
         "ta": "இந்தக் குடும்பங்கள் இ-சேவை மையத்தில் சாதிச் சான்றிதழுக்கு விண்ணப்பிக்க உதவு. வட்டாட்சியர் அலுவலகம் சான்றிதழ் வழங்கும்.",
         "en": "Help these families apply for a community certificate at the e-Sevai centre. The taluk office issues it."
@@ -42,8 +69,17 @@
     },
     "aadhaar": {
       "doc": "aadhaar",
-      "label": { "ta": "ஆதார் புதுப்பிப்பு", "en": "Aadhaar update" },
-      "need": { "ta": "ஆதார் உதவி தேவை", "en": ["needs an Aadhaar update", "need an Aadhaar update"] },
+      "label": {
+        "ta": "ஆதார் புதுப்பிப்பு",
+        "en": "Aadhaar update"
+      },
+      "need": {
+        "ta": "ஆதார் உதவி தேவை",
+        "en": [
+          "needs an Aadhaar update",
+          "need an Aadhaar update"
+        ]
+      },
       "action": {
         "ta": "அருகிலுள்ள ஆதார் அல்லது இ-சேவை மையத்தில் ஆதார் பதிவு அல்லது புதுப்பிப்புக்கு இவர்களுக்கு உதவு.",
         "en": "Help these students get Aadhaar made or updated at the nearest Aadhaar or e-Sevai centre."
@@ -55,8 +91,17 @@
     },
     "no_path_yet": {
       "doc": null,
-      "label": { "ta": "பாதை இன்னும் இல்லை", "en": "No path yet" },
-      "need": { "ta": "பாதை இன்னும் இல்லை", "en": ["has no path yet", "have no path yet"] },
+      "label": {
+        "ta": "பாதை இன்னும் இல்லை",
+        "en": "No path yet"
+      },
+      "need": {
+        "ta": "பாதை இன்னும் இல்லை",
+        "en": [
+          "has no path yet",
+          "have no path yet"
+        ]
+      },
       "action": {
         "ta": "இந்த மாணவர்களுடன் 10 நிமிடம் அமர்ந்து, போனில் \"கண்டறி\" பகுதியை ஒன்றாகச் செய்.",
         "en": "Sit with these students for 10 minutes and go through Discover together on the phone."
@@ -68,20 +113,60 @@
     }
   },
   "status": {
-    "not_started": { "ta": "இன்னும் தொடங்கவில்லை", "en": "Not started" },
-    "inactive": { "ta": "7 நாளுக்கு மேல் திறக்கவில்லை", "en": "Not active for 7+ days" },
-    "needs_help": { "ta": "உதவி தேவை", "en": "Needs help" },
-    "on_track": { "ta": "சரியாகப் போகிறது", "en": "On track" },
-    "done": { "ta": "திட்டம் முடிந்தது", "en": "Plan done" }
+    "not_started": {
+      "ta": "இன்னும் தொடங்கவில்லை",
+      "en": "Not started"
+    },
+    "inactive": {
+      "ta": "7 நாளுக்கு மேல் புதுப்பிப்பு இல்லை",
+      "en": "No update for 7+ days"
+    },
+    "needs_help": {
+      "ta": "உதவி தேவை",
+      "en": "Needs help"
+    },
+    "on_track": {
+      "ta": "சரியாகப் போகிறது",
+      "en": "On track"
+    },
+    "done": {
+      "ta": "திட்டம் முடிந்தது",
+      "en": "Plan done"
+    }
   },
   "start_steps": {
-    "discover": { "ta": "கண்டறி: மூன்று சிறு கேள்விகளுக்குப் பதில் சொல்", "en": "Discover: answer the three short questions" },
-    "paths": { "ta": "ஒரு பாதையைத் தேர்ந்தெடு", "en": "Choose a path" }
+    "discover": {
+      "ta": "கண்டறி: மூன்று சிறு கேள்விகளுக்குப் பதில் சொல்",
+      "en": "Discover: answer the three short questions"
+    },
+    "paths": {
+      "ta": "ஒரு பாதையைத் தேர்ந்தெடு",
+      "en": "Choose a path"
+    }
   },
-  "documents_step": { "ta": "தேவையான ஆவணங்களைத் தயார் செய்", "en": "Get the needed documents ready" },
+  "documents_step": {
+    "ta": "தேவையான ஆவணங்களைத் தயார் செய்",
+    "en": "Get the needed documents ready"
+  },
   "shared": {
-    "ta": ["ரோல் எண்", "முதல் பெயர் (போனில் சேர்ந்த மாணவர்கள்)", "தேர்ந்தெடுத்த பாதை", "ஒவ்வொரு வாரமும் முடித்த திட்டப் படிகள்", "அடுத்த படியின் வகை", "ஒரு தடை (எ.கா. வங்கிக் கணக்கு)", "கடைசியாகத் திறந்த நேரம்"],
-    "en": ["Roll number", "First name (students who joined on the phone)", "Chosen path", "Plan steps done each week", "Kind of next step", "One blocker (for example, a bank account)", "When the app was last used"]
+    "ta": [
+      "ரோல் எண்",
+      "முதல் பெயர் (போனில் சேர்ந்த மாணவர்கள்)",
+      "தேர்ந்தெடுத்த பாதை",
+      "ஒவ்வொரு வாரமும் முடித்த திட்டப் படிகள்",
+      "அடுத்த படியின் வகை",
+      "ஒரு தடை (எ.கா. வங்கிக் கணக்கு)",
+      "கடைசியாகத் திறந்த நேரம்"
+    ],
+    "en": [
+      "Roll number",
+      "First name (students who joined on the phone)",
+      "Chosen path",
+      "Plan steps done each week",
+      "Kind of next step",
+      "One blocker (for example, a bank account)",
+      "When the app was last used"
+    ]
   },
   "never": {
     "ta": "பாலினம், சமூகம், குடும்ப வருமானம், உள்ள ஆவணங்கள், மதிப்பெண்கள், அவளுடைய பதில்கள், உதவித்தொகைத் தகுதி, குரல் பதிவு",
